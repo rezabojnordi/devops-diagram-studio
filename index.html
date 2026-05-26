@@ -4,12 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HyperNexa DevOps & SRE Diagram Studio</title>
-  <meta name="description" content="A free browser-based DevOps and SRE diagram studio for architecture diagrams, flowcharts, incident maps, runbooks, and infrastructure visuals." />
-
-  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-
-  <script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js"></script>
+  <meta name="description" content="Production-ready DevOps and SRE diagram studio powered by diagrams.net." />
 
   <style>
     * {
@@ -17,19 +12,19 @@
     }
 
     html,
-    body,
-    #root {
+    body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
       font-family: Inter, Arial, sans-serif;
       background: #020617;
+      color: #f8fafc;
     }
 
     .app {
       width: 100%;
-      height: 100%;
+      height: 100vh;
       display: grid;
       grid-template-rows: 64px 1fr;
       background: #020617;
@@ -37,13 +32,12 @@
 
     .topbar {
       height: 64px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
       background: #020617;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      color: #f8fafc;
+      border-bottom: 1px solid rgba(255,255,255,.1);
       z-index: 10;
     }
 
@@ -60,535 +54,163 @@
       border-radius: 14px;
       display: grid;
       place-items: center;
-      background: rgba(34, 211, 238, 0.15);
-      border: 1px solid rgba(34, 211, 238, 0.45);
+      background: rgba(34,211,238,.15);
+      border: 1px solid rgba(34,211,238,.45);
       color: #a5f3fc;
       font-weight: 900;
       flex: 0 0 auto;
     }
 
-    .brand-title {
+    .title {
       font-size: 17px;
       font-weight: 800;
-      letter-spacing: -0.02em;
       white-space: nowrap;
     }
 
-    .brand-subtitle {
+    .subtitle {
       margin-top: 2px;
       font-size: 12px;
       color: #94a3b8;
       white-space: nowrap;
     }
 
-    .top-actions {
+    .actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    button {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.06);
+    button,
+    a.button {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
       color: #f8fafc;
       padding: 9px 12px;
       border-radius: 12px;
       cursor: pointer;
-      font: inherit;
-      transition: 0.15s ease;
+      text-decoration: none;
+      font-size: 14px;
+      transition: .15s ease;
     }
 
-    button:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(34, 211, 238, 0.45);
+    button:hover,
+    a.button:hover {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(34,211,238,.45);
     }
 
-    button.primary {
-      background: rgba(34, 211, 238, 0.16);
-      border-color: rgba(34, 211, 238, 0.45);
-      color: #cffafe;
-    }
-
-    button.danger {
-      background: rgba(251, 113, 133, 0.12);
-      border-color: rgba(251, 113, 133, 0.35);
-      color: #fecdd3;
+    .primary {
+      background: rgba(34,211,238,.16) !important;
+      border-color: rgba(34,211,238,.45) !important;
+      color: #cffafe !important;
     }
 
     .studio {
+      position: relative;
       width: 100%;
       height: calc(100vh - 64px);
-      position: relative;
+      background: #020617;
     }
 
-    .quick-panel {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      z-index: 5;
-      width: 270px;
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      color: #f8fafc;
-      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
-    }
-
-    .panel-title {
-      margin: 0 0 10px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #94a3b8;
-      font-weight: 900;
-    }
-
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .panel-grid button,
-    .panel-stack button {
+    iframe {
       width: 100%;
-      text-align: center;
-      padding: 8px 10px;
-    }
-
-    .panel-stack {
-      display: grid;
-      gap: 8px;
-    }
-
-    .note {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(34, 211, 238, 0.22);
-      background: rgba(34, 211, 238, 0.08);
-      color: #cffafe;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .excalidraw {
-      --color-primary: #22d3ee;
-      --color-primary-darker: #0891b2;
-      --color-primary-darkest: #155e75;
-      --color-primary-light: #cffafe;
       height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    .intro {
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      z-index: 2;
+      width: 310px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 20px 70px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .intro h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #a5f3fc;
+    }
+
+    .intro p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .intro strong {
+      color: #f8fafc;
     }
 
     @media (max-width: 900px) {
-      .brand-subtitle {
+      .subtitle {
         display: none;
       }
 
-      .quick-panel {
-        width: 230px;
+      .intro {
+        display: none;
       }
 
-      .top-actions button {
+      .actions a,
+      .actions button {
+        font-size: 12px;
         padding: 8px 9px;
-        font-size: 13px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">HN</div>
+        <div>
+          <div class="title">HyperNexa DevOps & SRE Diagram Studio</div>
+          <div class="subtitle">Production-ready architecture, flowchart, incident, network, Kubernetes, and platform diagrams.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="button primary" target="_blank" rel="noopener" href="https://app.diagrams.net/?splash=0&ui=atlas&libraries=1&clibs=Ugeneral;Uuml;Unetwork;Uaws4;Uazure2;Ugcp2;Ukubernetes;Umockups">
+          Open Fullscreen
+        </a>
+        <button onclick="reloadStudio()">Reload Studio</button>
+      </div>
+    </header>
+
+    <main class="studio">
+      <div class="intro">
+        <h2>DevOps / SRE Diagram Workspace</h2>
+        <p>
+          Use shapes, connectors, text, images, cloud libraries, Kubernetes icons, network diagrams,
+          incident flows, and architecture maps. Save/export from the diagram menu.
+        </p>
+      </div>
+
+      <iframe
+        id="diagramFrame"
+        title="HyperNexa DevOps and SRE Diagram Studio"
+        src="https://app.diagrams.net/?embed=1&splash=0&ui=atlas&libraries=1&clibs=Ugeneral;Uuml;Unetwork;Uaws4;Uazure2;Ugcp2;Ukubernetes;Umockups"
+        allow="clipboard-read; clipboard-write; fullscreen"
+      ></iframe>
+    </main>
+  </div>
 
   <script>
-    const { useEffect, useRef, useState } = React;
-    const { createRoot } = ReactDOM;
-    const ExcalidrawLib = window.ExcalidrawLib;
-
-    const STORAGE_KEY = "hypernexa-devops-sre-studio-v2";
-
-    function randomId() {
-      return Math.random().toString(36).slice(2, 12);
+    function reloadStudio() {
+      const iframe = document.getElementById("diagramFrame");
+      iframe.src = iframe.src;
     }
-
-    function baseElement(type, x, y, width, height, extra = {}) {
-      return {
-        id: randomId(),
-        type,
-        x,
-        y,
-        width,
-        height,
-        angle: 0,
-        strokeColor: extra.strokeColor || "#22d3ee",
-        backgroundColor: extra.backgroundColor || "transparent",
-        fillStyle: "solid",
-        strokeWidth: extra.strokeWidth || 2,
-        strokeStyle: "solid",
-        roughness: 1,
-        opacity: 100,
-        groupIds: [],
-        frameId: null,
-        roundness: type === "rectangle" ? { type: 3 } : null,
-        seed: Math.floor(Math.random() * 100000),
-        version: 1,
-        versionNonce: Math.floor(Math.random() * 100000),
-        isDeleted: false,
-        boundElements: null,
-        updated: Date.now(),
-        link: null,
-        locked: false,
-        ...extra,
-      };
-    }
-
-    function textElement(text, x, y, fontSize = 28, color = "#f8fafc") {
-      return baseElement("text", x, y, 10, 10, {
-        text,
-        fontSize,
-        fontFamily: 1,
-        textAlign: "left",
-        verticalAlign: "top",
-        baseline: fontSize,
-        containerId: null,
-        originalText: text,
-        lineHeight: 1.25,
-        strokeColor: color,
-        backgroundColor: "transparent",
-      });
-    }
-
-    function rectangle(label, x, y, color = "#22d3ee") {
-      const box = baseElement("rectangle", x, y, 210, 95, {
-        strokeColor: color,
-        backgroundColor: "#0f172a",
-      });
-
-      const labelEl = textElement(label, x + 24, y + 31, 22, "#f8fafc");
-      return [box, labelEl];
-    }
-
-    function diamond(label, x, y) {
-      const item = baseElement("diamond", x, y, 170, 130, {
-        strokeColor: "#f59e0b",
-        backgroundColor: "#0f172a",
-      });
-
-      const labelEl = textElement(label, x + 42, y + 49, 22, "#f8fafc");
-      return [item, labelEl];
-    }
-
-    function arrow(x1, y1, x2, y2) {
-      return baseElement("arrow", x1, y1, x2 - x1, y2 - y1, {
-        points: [
-          [0, 0],
-          [x2 - x1, y2 - y1],
-        ],
-        startBinding: null,
-        endBinding: null,
-        startArrowhead: null,
-        endArrowhead: "arrow",
-        strokeColor: "#e2e8f0",
-        backgroundColor: "transparent",
-      });
-    }
-
-    function devopsNode(label, icon, x, y, color) {
-      const box = baseElement("rectangle", x, y, 165, 125, {
-        strokeColor: color,
-        backgroundColor: "#0f172a",
-        roundness: { type: 3 },
-      });
-
-      const iconEl = textElement(icon, x + 57, y + 18, 36, color);
-      const labelEl = textElement(label, x + 36, y + 78, 22, "#f8fafc");
-      return [box, iconEl, labelEl];
-    }
-
-    function starterScene() {
-      return [
-        textElement("DevOps & SRE Architecture", 380, 70, 44, "#f8fafc"),
-        ...devopsNode("Cloud", "☁", 170, 250, "#38bdf8"),
-        ...devopsNode("Service", "⌁", 470, 250, "#a78bfa"),
-        ...devopsNode("Database", "◉", 770, 250, "#34d399"),
-        arrow(335, 312, 470, 312),
-        arrow(635, 312, 770, 312),
-      ];
-    }
-
-    function incidentTemplate() {
-      return [
-        textElement("Incident Response Flow", 410, 70, 44, "#f8fafc"),
-        ...rectangle("Alert", 130, 250, "#38bdf8"),
-        ...diamond("Impact?", 430, 230),
-        ...rectangle("Mitigate", 710, 250, "#22c55e"),
-        ...rectangle("Postmortem", 1010, 250, "#a78bfa"),
-        arrow(340, 298, 430, 298),
-        arrow(600, 298, 710, 298),
-        arrow(920, 298, 1010, 298),
-      ];
-    }
-
-    function k8sTemplate() {
-      return [
-        textElement("Kubernetes Architecture", 390, 70, 44, "#f8fafc"),
-        ...devopsNode("Ingress", "☁", 120, 240, "#38bdf8"),
-        ...devopsNode("Service", "⌁", 370, 240, "#60a5fa"),
-        ...devopsNode("Pods", "▣", 620, 240, "#a78bfa"),
-        ...devopsNode("Storage", "◉", 870, 240, "#34d399"),
-        ...devopsNode("Policy", "◆", 620, 460, "#f97316"),
-        arrow(285, 302, 370, 302),
-        arrow(535, 302, 620, 302),
-        arrow(785, 302, 870, 302),
-        arrow(700, 365, 700, 460),
-      ];
-    }
-
-    function cicdTemplate() {
-      return [
-        textElement("CI/CD Pipeline", 455, 70, 44, "#f8fafc"),
-        ...devopsNode("Git", "⑂", 120, 260, "#f97316"),
-        ...rectangle("Build", 360, 275, "#38bdf8"),
-        ...rectangle("Test", 640, 275, "#22c55e"),
-        ...rectangle("Deploy", 920, 275, "#a78bfa"),
-        arrow(285, 322, 360, 322),
-        arrow(570, 322, 640, 322),
-        arrow(850, 322, 920, 322),
-      ];
-    }
-
-    function securityTemplate() {
-      return [
-        textElement("Zero Trust Access Flow", 420, 70, 44, "#f8fafc"),
-        ...devopsNode("User", "◉", 100, 250, "#38bdf8"),
-        ...devopsNode("Identity", "◆", 350, 250, "#f97316"),
-        ...devopsNode("Policy", "▣", 600, 250, "#a78bfa"),
-        ...devopsNode("Private App", "☁", 850, 250, "#22c55e"),
-        arrow(265, 312, 350, 312),
-        arrow(515, 312, 600, 312),
-        arrow(765, 312, 850, 312),
-      ];
-    }
-
-    function loadInitialData() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          return null;
-        }
-      }
-
-      return {
-        elements: starterScene(),
-        appState: {
-          viewBackgroundColor: "#020617",
-          currentItemStrokeColor: "#22d3ee",
-          currentItemBackgroundColor: "transparent",
-          currentItemFontFamily: 1,
-          currentItemFontSize: 24,
-          currentItemStrokeWidth: 2,
-          currentItemRoughness: 1,
-        },
-        files: {},
-      };
-    }
-
-    function App() {
-      const excalidrawRef = useRef(null);
-      const [key, setKey] = useState(1);
-      const [initialData, setInitialData] = useState(loadInitialData());
-
-      function saveScene(elements, appState, files) {
-        const data = {
-          elements,
-          appState: {
-            ...appState,
-            collaborators: [],
-          },
-          files,
-        };
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      }
-
-      function setScene(elements) {
-        excalidrawRef.current.updateScene({
-          elements,
-          appState: {
-            viewBackgroundColor: "#020617",
-          },
-        });
-      }
-
-      function addTemplate(type) {
-        if (!excalidrawRef.current) return;
-
-        let elements = starterScene();
-
-        if (type === "incident") elements = incidentTemplate();
-        if (type === "k8s") elements = k8sTemplate();
-        if (type === "cicd") elements = cicdTemplate();
-        if (type === "security") elements = securityTemplate();
-
-        setScene(elements);
-      }
-
-      function clearLocalProject() {
-        const ok = confirm("Clear local project and reset the canvas?");
-        if (!ok) return;
-
-        localStorage.removeItem(STORAGE_KEY);
-        setInitialData({
-          elements: starterScene(),
-          appState: {
-            viewBackgroundColor: "#020617",
-          },
-          files: {},
-        });
-        setKey((x) => x + 1);
-      }
-
-      function downloadProject() {
-        const scene = excalidrawRef.current.getSceneElements();
-        const appState = excalidrawRef.current.getAppState();
-        const files = excalidrawRef.current.getFiles();
-
-        const blob = new Blob(
-          [
-            JSON.stringify(
-              {
-                type: "hypernexa-devops-sre-project",
-                version: 1,
-                source: "studio.hypernexa.cloud",
-                elements: scene,
-                appState,
-                files,
-              },
-              null,
-              2
-            ),
-          ],
-          { type: "application/json" }
-        );
-
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "hypernexa-devops-sre-diagram.json";
-        a.click();
-        URL.revokeObjectURL(a.href);
-      }
-
-      async function importProject(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        try {
-          const text = await file.text();
-          const data = JSON.parse(text);
-
-          excalidrawRef.current.updateScene({
-            elements: data.elements || [],
-            appState: {
-              ...(data.appState || {}),
-              viewBackgroundColor: "#020617",
-            },
-          });
-
-          if (data.files) {
-            excalidrawRef.current.addFiles(Object.values(data.files));
-          }
-        } catch {
-          alert("Invalid project file.");
-        }
-
-        event.target.value = "";
-      }
-
-      return React.createElement(
-        "div",
-        { className: "app" },
-        React.createElement(
-          "header",
-          { className: "topbar" },
-          React.createElement(
-            "div",
-            { className: "brand" },
-            React.createElement("div", { className: "logo" }, "HN"),
-            React.createElement(
-              "div",
-              null,
-              React.createElement("div", { className: "brand-title" }, "HyperNexa DevOps & SRE Diagram Studio"),
-              React.createElement("div", { className: "brand-subtitle" }, "Production-ready browser diagramming for architecture, incidents, runbooks, and platform maps.")
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "top-actions" },
-            React.createElement("button", { onClick: downloadProject }, "Save Project"),
-            React.createElement(
-              "button",
-              {
-                onClick: () => document.getElementById("importFile").click(),
-              },
-              "Open Project"
-            ),
-            React.createElement("button", { className: "danger", onClick: clearLocalProject }, "Reset")
-          )
-        ),
-        React.createElement(
-          "main",
-          { className: "studio" },
-          React.createElement(
-            "div",
-            { className: "quick-panel" },
-            React.createElement("div", { className: "panel-title" }, "DevOps / SRE Templates"),
-            React.createElement(
-              "div",
-              { className: "panel-stack" },
-              React.createElement("button", { onClick: () => addTemplate("k8s") }, "Kubernetes Architecture"),
-              React.createElement("button", { onClick: () => addTemplate("incident") }, "Incident Response Flow"),
-              React.createElement("button", { onClick: () => addTemplate("cicd") }, "CI/CD Pipeline"),
-              React.createElement("button", { onClick: () => addTemplate("security") }, "Zero Trust Access")
-            ),
-            React.createElement("div", { className: "note" }, "Use the drawing toolbar to add shapes, arrows, text, images, colors, and export diagrams. Projects auto-save locally.")
-          ),
-          React.createElement("input", {
-            id: "importFile",
-            type: "file",
-            accept: "application/json",
-            style: { display: "none" },
-            onChange: importProject,
-          }),
-          React.createElement(ExcalidrawLib.Excalidraw, {
-            key,
-            excalidrawAPI: (api) => {
-              excalidrawRef.current = api;
-            },
-            initialData,
-            onChange: saveScene,
-            theme: "dark",
-            UIOptions: {
-              canvasActions: {
-                changeViewBackgroundColor: true,
-                clearCanvas: true,
-                export: true,
-                loadScene: true,
-                saveToActiveFile: true,
-                toggleTheme: true,
-              },
-            },
-          })
-        )
-      );
-    }
-
-    createRoot(document.getElementById("root")).render(React.createElement(App));
   </script>
 </body>
 </html>
