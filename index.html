@@ -4,213 +4,757 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HyperNexa DevOps & SRE Diagram Studio</title>
-  <meta name="description" content="Production-ready DevOps and SRE diagram studio powered by diagrams.net." />
-
+  <meta name="description" content="A standalone DevOps and SRE diagram studio for architecture diagrams, flowcharts, incident flows, and platform maps." />
   <style>
-    * {
-      box-sizing: border-box;
+    *{box-sizing:border-box}
+    :root{
+      --bg:#020617;--panel:#0f172a;--muted:#94a3b8;--text:#f8fafc;
+      --line:rgba(255,255,255,.12);--cyan:#22d3ee;--red:#fb7185;--green:#22c55e;--orange:#f97316;--purple:#a78bfa
     }
-
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: Inter, Arial, sans-serif;
-      background: #020617;
-      color: #f8fafc;
-    }
-
-    .app {
-      width: 100%;
-      height: 100vh;
-      display: grid;
-      grid-template-rows: 64px 1fr;
-      background: #020617;
-    }
-
-    .topbar {
-      height: 64px;
-      padding: 0 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #020617;
-      border-bottom: 1px solid rgba(255,255,255,.1);
-      z-index: 10;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: rgba(34,211,238,.15);
-      border: 1px solid rgba(34,211,238,.45);
-      color: #a5f3fc;
-      font-weight: 900;
-      flex: 0 0 auto;
-    }
-
-    .title {
-      font-size: 17px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .subtitle {
-      margin-top: 2px;
-      font-size: 12px;
-      color: #94a3b8;
-      white-space: nowrap;
-    }
-
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    button,
-    a.button {
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: #f8fafc;
-      padding: 9px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 14px;
-      transition: .15s ease;
-    }
-
-    button:hover,
-    a.button:hover {
-      background: rgba(255,255,255,.12);
-      border-color: rgba(34,211,238,.45);
-    }
-
-    .primary {
-      background: rgba(34,211,238,.16) !important;
-      border-color: rgba(34,211,238,.45) !important;
-      color: #cffafe !important;
-    }
-
-    .studio {
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 64px);
-      background: #020617;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: white;
-    }
-
-    .intro {
-      position: absolute;
-      left: 24px;
-      top: 24px;
-      z-index: 2;
-      width: 310px;
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(15,23,42,.92);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 20px 70px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px);
-      pointer-events: none;
-    }
-
-    .intro h2 {
-      margin: 0 0 8px;
-      font-size: 15px;
-      color: #a5f3fc;
-    }
-
-    .intro p {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.5;
-      color: #cbd5e1;
-    }
-
-    .intro strong {
-      color: #f8fafc;
-    }
-
-    @media (max-width: 900px) {
-      .subtitle {
-        display: none;
-      }
-
-      .intro {
-        display: none;
-      }
-
-      .actions a,
-      .actions button {
-        font-size: 12px;
-        padding: 8px 9px;
-      }
-    }
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+    .app{height:100vh;display:grid;grid-template-rows:64px 1fr}
+    .topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#020617;border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.45);color:#a5f3fc;font-weight:900}
+    .brand-title{font-weight:900;font-size:17px;white-space:nowrap}
+    .brand-sub{font-size:12px;color:var(--muted);white-space:nowrap;margin-top:2px}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    button,input,select,textarea{font:inherit}
+    button{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:9px 11px;border-radius:12px;cursor:pointer;transition:.15s}
+    button:hover{background:rgba(255,255,255,.12);border-color:rgba(34,211,238,.45)}
+    button.primary{background:rgba(34,211,238,.16);border-color:rgba(34,211,238,.45);color:#cffafe}
+    button.danger{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35);color:#fecdd3}
+    button.active{background:rgba(34,211,238,.25);border-color:#22d3ee;color:white}
+    .workspace{height:calc(100vh - 64px);display:grid;grid-template-columns:286px 1fr 330px}
+    aside{background:rgba(15,23,42,.96);border-right:1px solid var(--line);padding:14px;overflow:auto}
+    aside.right{border-right:0;border-left:1px solid var(--line)}
+    .section{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:900;margin:18px 0 10px}
+    .section:first-child{margin-top:0}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .stack{display:grid;gap:8px}
+    .hint{padding:12px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.08);border-radius:16px;color:#cffafe;font-size:12.5px;line-height:1.5}
+    .warn{padding:12px;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.08);border-radius:16px;color:#fde68a;font-size:12.5px;line-height:1.5}
+    .canvas-shell{overflow:auto;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#020617 100%);padding:22px}
+    .canvas-card{width:max-content;margin:0 auto;padding:14px;border:1px solid var(--line);border-radius:22px;background:rgba(0,0,0,.22);box-shadow:0 30px 90px rgba(0,0,0,.45)}
+    #stage{display:block;border-radius:16px;background:#020617;touch-action:none;user-select:none}
+    label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    input,textarea,select{width:100%;border:1px solid var(--line);background:#020617;color:var(--text);border-radius:12px;padding:9px;outline:none}
+    textarea{min-height:70px;resize:vertical}
+    input[type=color]{height:42px;padding:4px}
+    .field{margin-bottom:12px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .card{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:16px;padding:12px;margin-bottom:12px}
+    .small{font-size:12px;color:var(--muted);line-height:1.45}
+    .kbd{font-size:11px;color:#cbd5e1;background:#020617;border:1px solid var(--line);border-radius:8px;padding:2px 6px}
+    .footer-note{position:fixed;right:16px;bottom:12px;color:#64748b;font-size:11px;pointer-events:none}
+    @media(max-width:1100px){body{overflow:auto}.workspace{height:auto;grid-template-columns:1fr}.canvas-shell{min-height:760px}aside,aside.right{border:0;border-bottom:1px solid var(--line)}.brand-sub{display:none}}
   </style>
 </head>
-
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">HN</div>
-        <div>
-          <div class="title">HyperNexa DevOps & SRE Diagram Studio</div>
-          <div class="subtitle">Production-ready architecture, flowchart, incident, network, Kubernetes, and platform diagrams.</div>
-        </div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">HN</div>
+      <div>
+        <div class="brand-title">HyperNexa DevOps & SRE Diagram Studio</div>
+        <div class="brand-sub">Standalone static app with copy/paste, smart connectors, real DevOps icons, export, and local save.</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button onclick="undo()">Undo</button>
+      <button onclick="redo()">Redo</button>
+      <button id="gridBtn" class="primary" onclick="toggleGrid()">Grid</button>
+      <button onclick="zoom(-.1)">−</button>
+      <button id="zoomLabel">100%</button>
+      <button onclick="zoom(.1)">+</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside>
+      <div class="section">Draw</div>
+      <div class="grid2">
+        <button onclick="addText()">Text</button>
+        <button onclick="addNote()">Note</button>
+        <button onclick="addBox()">Box</button>
+        <button onclick="addCircle()">Circle</button>
+        <button onclick="addDiamond()">Decision</button>
+        <button onclick="addArrow()">Free Arrow</button>
+        <button onclick="imageInput.click()">Image</button>
+        <button onclick="addSwimlane()">Swimlane</button>
       </div>
 
-      <div class="actions">
-        <a class="button primary" target="_blank" rel="noopener" href="https://app.diagrams.net/?splash=0&ui=atlas&libraries=1&clibs=Ugeneral;Uuml;Unetwork;Uaws4;Uazure2;Ugcp2;Ukubernetes;Umockups">
-          Open Fullscreen
-        </a>
-        <button onclick="reloadStudio()">Reload Studio</button>
-      </div>
-    </header>
-
-    <main class="studio">
-      <div class="intro">
-        <h2>DevOps / SRE Diagram Workspace</h2>
-        <p>
-          Use shapes, connectors, text, images, cloud libraries, Kubernetes icons, network diagrams,
-          incident flows, and architecture maps. Save/export from the diagram menu.
-        </p>
+      <div class="section">Connect</div>
+      <div class="stack">
+        <button id="connectBtn" class="primary" onclick="toggleConnectMode()">Connector: OFF</button>
+        <div id="connectHelp" class="hint">Turn Connector ON and click two shapes, or drag from the small connector dot on a selected shape to another shape. Use the resize handle to make boxes bigger or smaller with the mouse.</div>
       </div>
 
-      <iframe
-        id="diagramFrame"
-        title="HyperNexa DevOps and SRE Diagram Studio"
-        src="https://app.diagrams.net/?embed=1&splash=0&ui=atlas&libraries=1&clibs=Ugeneral;Uuml;Unetwork;Uaws4;Uazure2;Ugcp2;Ukubernetes;Umockups"
-        allow="clipboard-read; clipboard-write; fullscreen"
-      ></iframe>
+      <div class="section">DevOps / SRE Icons</div>
+      <div class="grid2">
+        <button onclick="addIcon('Server','server','#a78bfa','#ddd6fe')">Server</button>
+        <button onclick="addIcon('Cloud','cloud','#38bdf8','#bae6fd')">Cloud</button>
+        <button onclick="addIcon('Database','database','#34d399','#bbf7d0')">Database</button>
+        <button onclick="addIcon('Security','shield','#f97316','#fed7aa')">Security</button>
+        <button onclick="addIcon('Network','network','#60a5fa','#bfdbfe')">Network</button>
+        <button onclick="addIcon('Git','git','#fb7185','#fecdd3')">Git</button>
+        <button onclick="addIcon('Monitor','monitor','#facc15','#fef08a')">Monitor</button>
+        <button onclick="addIcon('Queue','queue','#2dd4bf','#99f6e4')">Queue</button>
+        <button onclick="addIcon('Kubernetes','k8s','#38bdf8','#bae6fd')">K8s</button>
+        <button onclick="addIcon('Firewall','firewall','#ef4444','#fecaca')">Firewall</button>
+        <button onclick="addIcon('Linux','linux','#eab308','#fde68a')">Linux</button>
+        <button onclick="addIcon('LXC','lxc','#22c55e','#bbf7d0')">LXC</button>
+        <button onclick="addIcon('Docker','docker','#38bdf8','#bae6fd')">Docker</button>
+        <button onclick="addIcon('Nginx','nginx','#22c55e','#bbf7d0')">Nginx</button>
+        <button onclick="addIcon('Prometheus','prometheus','#fb923c','#fed7aa')">Prometheus</button>
+        <button onclick="addIcon('Grafana','grafana','#f97316','#fdba74')">Grafana</button>
+        <button onclick="addIcon('Terraform','terraform','#a78bfa','#ddd6fe')">Terraform</button>
+        <button onclick="addIcon('Load Balancer','loadbalancer','#60a5fa','#bfdbfe')">LB</button>
+      </div>
+
+      <div class="section">Templates</div>
+      <div class="stack">
+        <button onclick="templateK8s()">Kubernetes Architecture</button>
+        <button onclick="templateIncident()">Incident Response Flow</button>
+        <button onclick="templateCicd()">CI/CD Pipeline</button>
+        <button onclick="templateZeroTrust()">Zero Trust Access</button>
+        <button onclick="templateObservability()">Observability Map</button>
+      </div>
+
+      <div class="section">Import / Export</div>
+      <div class="stack">
+        <button class="primary" onclick="exportPNG()">Export PNG</button>
+        <button onclick="exportSVG()">Export SVG</button>
+        <button onclick="exportJSON()">Save Project JSON</button>
+        <button onclick="jsonInput.click()">Open Project JSON</button>
+      </div>
+
+      <div class="section">Shortcuts</div>
+      <div class="hint">
+        <span class="kbd">Ctrl+C</span> copy selected<br>
+        <span class="kbd">Ctrl+V</span> paste<br>
+        <span class="kbd">Delete</span> remove<br>
+        <span class="kbd">Ctrl+S</span> save JSON<br>
+        <span class="kbd">Ctrl+E</span> export PNG
+      </div>
+
+      <input id="imageInput" type="file" accept="image/*" hidden>
+      <input id="jsonInput" type="file" accept="application/json" hidden>
+    </aside>
+
+    <main class="canvas-shell">
+      <div class="canvas-card">
+        <svg id="stage" width="1440" height="820" viewBox="0 0 1440 820"></svg>
+      </div>
     </main>
-  </div>
 
-  <script>
-    function reloadStudio() {
-      const iframe = document.getElementById("diagramFrame");
-      iframe.src = iframe.src;
+    <aside class="right">
+      <div class="section">Inspector</div>
+      <div id="inspector"><div class="hint">Select an element to edit position, size, label, colors, and icon type.</div></div>
+
+      <div class="section">Selected Actions</div>
+      <div class="stack">
+        <button onclick="copySelected()">Copy selected</button>
+        <button onclick="pasteCopied()">Paste</button>
+        <button onclick="bringForward()">Bring forward</button>
+        <button onclick="sendBackward()">Send backward</button>
+        <button onclick="duplicateSelected()">Duplicate selected</button>
+        <button class="danger" onclick="deleteSelected()">Delete selected</button>
+      </div>
+
+      <div class="section">Canvas</div>
+      <div class="stack">
+        <button onclick="fitDefault()">Reset zoom</button>
+        <button class="danger" onclick="clearCanvas()">Clear canvas</button>
+      </div>
+
+      <div class="section">Storage</div>
+      <div class="hint">
+        Projects auto-save in the browser. For sharing or backup, use <b>Save Project JSON</b>.
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="footer-note">HyperNexa Studio • Static GitHub Pages Edition</div>
+
+<script>
+const SVG = "http://www.w3.org/2000/svg";
+const stage = document.getElementById("stage");
+const imageInput = document.getElementById("imageInput");
+const jsonInput = document.getElementById("jsonInput");
+const STORAGE_KEY = "hypernexa-devops-sre-studio-v2";
+
+let elements = [];
+let selectedId = null;
+let showGrid = true;
+let scale = 1;
+let dragging = null;
+let history = [];
+let future = [];
+let clipboardItem = null;
+let connectMode = false;
+let connectSourceId = null;
+let resizing = null;
+let tempConnector = null;
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function clone(x){ return JSON.parse(JSON.stringify(x)); }
+function pushHistory(){ history.push(clone(elements)); history = history.slice(-60); future = []; }
+function commit(next){ pushHistory(); elements = next; save(); render(); }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(elements)); }
+function load(){ try{ elements = JSON.parse(localStorage.getItem(STORAGE_KEY)) || starter(); }catch{ elements=starter(); } normalizeOldIcons(); render(); }
+function normalizeOldIcons(){ elements = elements.map(e => e.type === "icon" && !e.iconType ? {...e, iconType: iconTypeFromOld(e.icon, e.text)} : e); }
+function iconTypeFromOld(icon, text){
+  const t = String(text||"").toLowerCase();
+  if(t.includes("database") || icon === "◉") return "database";
+  if(t.includes("cloud") || icon === "☁") return "cloud";
+  if(t.includes("git") || icon === "⑂") return "git";
+  if(t.includes("security") || icon === "◆") return "shield";
+  if(t.includes("network") || icon === "⌁") return "network";
+  if(t.includes("monitor") || icon === "◌") return "monitor";
+  if(t.includes("queue") || icon === "▤") return "queue";
+  return "server";
+}
+
+function starter(){
+  return [
+    {id:uid(),type:"text",x:420,y:70,w:650,h:70,text:"DevOps & SRE Architecture Map",fontSize:46,fill:"#f8fafc",stroke:"transparent"},
+    ...node("Users","user",140,260,"#38bdf8","#bae6fd"),
+    ...node("CDN / Edge","cloud",400,260,"#60a5fa","#bfdbfe"),
+    ...node("App Service","server",660,260,"#a78bfa","#ddd6fe"),
+    ...node("Database","database",920,260,"#34d399","#bbf7d0"),
+    ...node("Observability","monitor",660,500,"#facc15","#fef08a"),
+    connectedArrow(null,null,300,325,400,325),
+    connectedArrow(null,null,560,325,660,325),
+    connectedArrow(null,null,820,325,920,325),
+    connectedArrow(null,null,740,385,740,500)
+  ];
+}
+
+function node(label,iconType,x,y,fill,stroke){
+  return [{id:uid(),type:"icon",iconType,x,y,w:160,h:125,text:label,fontSize:20,fill,stroke,bg:"#0f172a",radius:24}];
+}
+function connectedArrow(from,to,x1,y1,x2,y2){ return {id:uid(),type:"arrow",from:from||null,to:to||null,x1,y1,x2,y2,stroke:"#e2e8f0",width:4}; }
+function arrow(x1,y1,x2,y2){ return connectedArrow(null,null,x1,y1,x2,y2); }
+
+function center(item){
+  if(!item || item.type === "arrow") return null;
+  return {x:(item.x||0)+(item.w||0)/2, y:(item.y||0)+(item.h||0)/2};
+}
+
+function edgePoint(fromItem, toItem){
+  if(!fromItem || !toItem || fromItem.type === "arrow" || toItem.type === "arrow") {
+    return fromItem ? center(fromItem) : null;
+  }
+
+  const c1 = center(fromItem);
+  const c2 = center(toItem);
+  const dx = c2.x - c1.x;
+  const dy = c2.y - c1.y;
+  const w = Math.max(1, (fromItem.w || 1) / 2);
+  const h = Math.max(1, (fromItem.h || 1) / 2);
+
+  if (Math.abs(dx) / w > Math.abs(dy) / h) {
+    return {
+      x: c1.x + (dx > 0 ? w : -w),
+      y: c1.y + dy * (w / Math.max(1, Math.abs(dx)))
+    };
+  }
+
+  return {
+    x: c1.x + dx * (h / Math.max(1, Math.abs(dy))),
+    y: c1.y + (dy > 0 ? h : -h)
+  };
+}
+
+function getArrowPoints(item){
+  const fromItem = item.from ? elements.find(e=>e.id===item.from) : null;
+  const toItem = item.to ? elements.find(e=>e.id===item.to) : null;
+
+  if(fromItem && toItem){
+    const start = edgePoint(fromItem, toItem);
+    const end = edgePoint(toItem, fromItem);
+    return {x1:start.x, y1:start.y, x2:end.x, y2:end.y};
+  }
+
+  const from = fromItem ? center(fromItem) : null;
+  const to = toItem ? center(toItem) : null;
+  return {x1:from?from.x:item.x1, y1:from?from.y:item.y1, x2:to?to.x:item.x2, y2:to?to.y:item.y2};
+}
+
+function connectorHandlePoint(item){
+  return {x:(item.x||0)+(item.w||0)+14, y:(item.y||0)+(item.h||0)/2};
+}
+
+function resizeHandlePoint(item){
+  return {x:(item.x||0)+(item.w||0), y:(item.y||0)+(item.h||0)};
+}
+
+function isResizable(item){
+  return item && item.type !== "arrow" && item.type !== "text";
+}
+
+function findShapeAtClientPoint(clientX, clientY, excludeId=null){
+  let el = document.elementFromPoint(clientX, clientY);
+  while(el){
+    const id = el.getAttribute && el.getAttribute("data-id");
+    if(id){
+      const item = elements.find(x=>x.id===id);
+      if(item && item.type !== "arrow" && item.id !== excludeId) return item;
     }
-  </script>
+    el = el.parentNode;
+  }
+  return null;
+}
+
+function startResize(item, ev){
+  ev.stopPropagation();
+  selectedId = item.id;
+  resizing = {id:item.id, start:point(ev), original:clone(item)};
+  render();
+}
+
+function startConnectorDrag(item, ev){
+  ev.stopPropagation();
+  selectedId = item.id;
+  const start = connectorHandlePoint(item);
+  tempConnector = {fromId:item.id, x1:start.x, y1:start.y, x2:start.x, y2:start.y, hoverTargetId:null};
+  render();
+}
+
+function make(name,attrs={}){
+  const e = document.createElementNS(SVG,name);
+  Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
+  return e;
+}
+function bgDefs(){
+  const defs = make("defs");
+  const grid = make("pattern",{id:"grid",width:"32",height:"32",patternUnits:"userSpaceOnUse"});
+  grid.appendChild(make("path",{d:"M 32 0 L 0 0 0 32",fill:"none",stroke:"rgba(148,163,184,.18)","stroke-width":"1"}));
+  const grad = make("radialGradient",{id:"bg",cx:"50%",cy:"0%",r:"90%"});
+  grad.appendChild(make("stop",{offset:"0%","stop-color":"#172554"}));
+  grad.appendChild(make("stop",{offset:"55%","stop-color":"#0f172a"}));
+  grad.appendChild(make("stop",{offset:"100%","stop-color":"#020617"}));
+  defs.append(grid,grad);
+  return defs;
+}
+
+function render(){
+  stage.innerHTML = "";
+  stage.appendChild(bgDefs());
+  stage.appendChild(make("rect",{width:"1440",height:"820",fill:"url(#bg)"}));
+  if(showGrid) stage.appendChild(make("rect",{width:"1440",height:"820",fill:"url(#grid)"}));
+
+  elements.filter(e=>e.type==="arrow").forEach(draw);
+  if(tempConnector){
+    const c = make("g");
+    c.appendChild(make("line",{x1:tempConnector.x1,y1:tempConnector.y1,x2:tempConnector.x2,y2:tempConnector.y2,stroke:"#22d3ee","stroke-width":3,"stroke-dasharray":"8 6","stroke-linecap":"round"}));
+    c.appendChild(make("circle",{cx:tempConnector.x1,cy:tempConnector.y1,r:5,fill:"#22d3ee"}));
+    c.appendChild(make("circle",{cx:tempConnector.x2,cy:tempConnector.y2,r:5,fill:tempConnector.hoverTargetId ? "#facc15" : "#22d3ee"}));
+    stage.appendChild(c);
+  }
+  elements.filter(e=>e.type!=="arrow").forEach(draw);
+
+  renderInspector();
+  updateConnectUI();
+}
+
+function draw(item){
+  const g = make("g",{"data-id":item.id,cursor:connectMode && item.type !== "arrow" ? "crosshair" : "move"});
+  g.addEventListener("pointerdown",e=>startInteraction(e,item.id));
+  const active = item.id===selectedId;
+
+  if(item.type==="arrow"){
+    const p = getArrowPoints(item);
+    g.appendChild(make("line",{x1:p.x1,y1:p.y1,x2:p.x2,y2:p.y2,stroke:item.stroke||"#e2e8f0","stroke-width":item.width||4,"stroke-linecap":"round"}));
+    if(item.from || item.to){
+      g.appendChild(make("circle",{cx:p.x1,cy:p.y1,r:5,fill:item.stroke||"#e2e8f0"}));
+      g.appendChild(make("circle",{cx:p.x2,cy:p.y2,r:5,fill:item.stroke||"#e2e8f0"}));
+    }
+    const a=Math.atan2(p.y2-p.y1,p.x2-p.x1);
+    const ax=p.x2-Math.cos(a)*12, ay=p.y2-Math.sin(a)*12;
+    const pts=`${p.x2},${p.y2} ${ax-Math.sin(a)*8},${ay+Math.cos(a)*8} ${ax+Math.sin(a)*8},${ay-Math.cos(a)*8}`;
+    g.appendChild(make("polygon",{points:pts,fill:item.stroke||"#e2e8f0"}));
+    if(active) g.appendChild(make("rect",{x:Math.min(p.x1,p.x2)-12,y:Math.min(p.y1,p.y2)-12,width:Math.abs(p.x2-p.x1)+24,height:Math.abs(p.y2-p.y1)+24,fill:"none",stroke:"#22d3ee","stroke-dasharray":"6 6"}));
+    stage.appendChild(g); return;
+  }
+
+  if(item.type==="text"){
+    const t=make("text",{x:item.x,y:item.y+item.h/2,fill:item.fill||"#f8fafc","font-size":item.fontSize||32,"font-family":"Inter, Arial","dominant-baseline":"middle"});
+    t.textContent=item.text||"Text"; g.appendChild(t);
+    if(active) g.appendChild(sel(item));
+    stage.appendChild(g); return;
+  }
+
+  if(item.type==="image"){
+    g.appendChild(make("image",{href:item.src,x:item.x,y:item.y,width:item.w,height:item.h,preserveAspectRatio:"xMidYMid slice"}));
+    if(active) g.appendChild(sel(item));
+    stage.appendChild(g); return;
+  }
+
+  if(item.type==="swimlane"){
+    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:16,fill:item.bg||"rgba(15,23,42,.45)",stroke:item.stroke||"#334155","stroke-width":2,"stroke-dasharray":"8 8"}));
+    const title=make("text",{x:item.x+18,y:item.y+30,fill:item.fill||"#cbd5e1","font-size":18,"font-family":"Inter, Arial","font-weight":"800"});
+    title.textContent=item.text||"Lane"; g.appendChild(title);
+    if(active) g.appendChild(sel(item));
+    stage.appendChild(g); return;
+  }
+
+  if(item.type==="box" || item.type==="note"){
+    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:item.radius||18,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#38bdf8","stroke-width":item.width||3}));
+  }
+  if(item.type==="circle"){
+    g.appendChild(make("ellipse",{cx:item.x+item.w/2,cy:item.y+item.h/2,rx:item.w/2,ry:item.h/2,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#38bdf8","stroke-width":item.width||3}));
+  }
+  if(item.type==="diamond"){
+    g.appendChild(make("polygon",{points:`${item.x+item.w/2},${item.y} ${item.x+item.w},${item.y+item.h/2} ${item.x+item.w/2},${item.y+item.h} ${item.x},${item.y+item.h/2}`,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#f59e0b","stroke-width":item.width||3}));
+  }
+  if(item.type==="icon"){
+    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:item.radius||24,fill:item.bg||"#0f172a",stroke:item.stroke||"#38bdf8","stroke-width":3}));
+    drawIconSymbol(g, item.iconType || iconTypeFromOld(item.icon,item.text), item.x + item.w/2, item.y + 45, item.fill || "#38bdf8");
+  }
+
+  const label=make("text",{x:item.x+item.w/2,y:item.type==="icon"?item.y+item.h-24:item.y+item.h/2,"text-anchor":"middle",fill:item.labelColor||"#f8fafc","font-size":item.fontSize||18,"font-family":"Inter, Arial","font-weight":"800","dominant-baseline":"middle"});
+  label.textContent=item.text||"";
+  g.appendChild(label);
+  if(active) {
+    g.appendChild(sel(item));
+    if(item.type !== "text"){
+      const cp = connectorHandlePoint(item);
+      const rp = resizeHandlePoint(item);
+      const cHandle = make("circle",{cx:cp.x,cy:cp.y,r:9,fill:"#22d3ee",stroke:"#cffafe","stroke-width":2,cursor:"crosshair"});
+      cHandle.addEventListener("pointerdown",ev=>startConnectorDrag(item,ev));
+      g.appendChild(cHandle);
+    }
+    if(isResizable(item)){
+      const rp = resizeHandlePoint(item);
+      const rHandle = make("rect",{x:rp.x-8,y:rp.y-8,width:16,height:16,rx:4,fill:"#f8fafc",stroke:"#22d3ee","stroke-width":2,cursor:"nwse-resize"});
+      rHandle.addEventListener("pointerdown",ev=>startResize(item,ev));
+      g.appendChild(rHandle);
+    }
+  }
+  if(connectSourceId === item.id) g.appendChild(make("rect",{x:item.x-11,y:item.y-11,width:item.w+22,height:item.h+22,fill:"none",stroke:"#facc15","stroke-width":3,"stroke-dasharray":"10 5"}));
+  if(tempConnector && tempConnector.hoverTargetId === item.id) g.appendChild(make("rect",{x:item.x-14,y:item.y-14,width:item.w+28,height:item.h+28,fill:"none",stroke:"#22d3ee","stroke-width":2,"stroke-dasharray":"5 5"}));
+  stage.appendChild(g);
+}
+
+function drawIconSymbol(g, type, cx, cy, color){
+  const stroke = color;
+  const fill = "none";
+  if(type==="database"){
+    g.appendChild(make("ellipse",{cx,cy:cy-17,rx:25,ry:10,fill:"rgba(52,211,153,.18)",stroke,"stroke-width":4}));
+    g.appendChild(make("path",{d:`M ${cx-25} ${cy-17} V ${cy+18} C ${cx-25} ${cy+31}, ${cx+25} ${cy+31}, ${cx+25} ${cy+18} V ${cy-17}`,fill:"rgba(52,211,153,.10)",stroke,"stroke-width":4}));
+    g.appendChild(make("ellipse",{cx,cy:cy+18,rx:25,ry:10,fill:"none",stroke,"stroke-width":4}));
+    return;
+  }
+  if(type==="server"){
+    [-20,0,20].forEach((dy)=>{
+      g.appendChild(make("rect",{x:cx-30,y:cy+dy-9,width:60,height:16,rx:4,fill:"rgba(167,139,250,.12)",stroke,"stroke-width":3}));
+      g.appendChild(make("circle",{cx:cx+20,cy:cy+dy-1,r:2.5,fill:stroke}));
+    });
+    return;
+  }
+  if(type==="cloud"){
+    g.appendChild(make("path",{d:`M ${cx-32} ${cy+10} C ${cx-42} ${cy+7}, ${cx-42} ${cy-10}, ${cx-28} ${cy-11} C ${cx-24} ${cy-28}, ${cx-2} ${cy-30}, ${cx+5} ${cy-15} C ${cx+23} ${cy-20}, ${cx+35} ${cy-5}, ${cx+28} ${cy+10} Z`,fill:"rgba(56,189,248,.14)",stroke,"stroke-width":4,"stroke-linejoin":"round"}));
+    return;
+  }
+  if(type==="shield"){
+    g.appendChild(make("path",{d:`M ${cx} ${cy-32} L ${cx+28} ${cy-20} V ${cy+2} C ${cx+28} ${cy+20}, ${cx+12} ${cy+30}, ${cx} ${cy+36} C ${cx-12} ${cy+30}, ${cx-28} ${cy+20}, ${cx-28} ${cy+2} V ${cy-20} Z`,fill:"rgba(249,115,22,.13)",stroke,"stroke-width":4,"stroke-linejoin":"round"}));
+    g.appendChild(make("path",{d:`M ${cx-12} ${cy+2} L ${cx-2} ${cy+12} L ${cx+15} ${cy-12}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    return;
+  }
+  if(type==="network"){
+    const pts=[[cx,cy-28],[cx-30,cy+18],[cx+30,cy+18]];
+    pts.forEach(([x,y])=>g.appendChild(make("circle",{cx:x,cy:y,r:10,fill:"rgba(96,165,250,.15)",stroke,"stroke-width":4})));
+    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx-22,y2:cy+10,stroke,"stroke-width":3}));
+    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx+22,y2:cy+10,stroke,"stroke-width":3}));
+    g.appendChild(make("line",{x1:cx-20,y1:cy+18,x2:cx+20,y2:cy+18,stroke,"stroke-width":3}));
+    return;
+  }
+  if(type==="git"){
+    [[cx-25,cy-22],[cx,cy],[cx+25,cy+22]].forEach(([x,y])=>g.appendChild(make("circle",{cx:x,cy:y,r:8,fill:"rgba(251,113,133,.18)",stroke,"stroke-width":4})));
+    g.appendChild(make("path",{d:`M ${cx-18} ${cy-16} L ${cx-6} ${cy-5} M ${cx+7} ${cy+6} L ${cx+18} ${cy+17} M ${cx} ${cy-25} V ${cy+25}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    return;
+  }
+  if(type==="monitor"){
+    g.appendChild(make("rect",{x:cx-32,y:cy-25,width:64,height:42,rx:6,fill:"rgba(250,204,21,.10)",stroke,"stroke-width":4}));
+    g.appendChild(make("path",{d:`M ${cx-12} ${cy+27} H ${cx+12} M ${cx} ${cy+17} V ${cy+27}`,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    g.appendChild(make("path",{d:`M ${cx-22} ${cy-3} L ${cx-8} ${cy-3} L ${cx} ${cy-14} L ${cx+10} ${cy+8} L ${cx+23} ${cy+8}`,fill:"none",stroke,"stroke-width":3,"stroke-linecap":"round","stroke-linejoin":"round"}));
+    return;
+  }
+  if(type==="queue"){
+    [-18,0,18].forEach((dy)=>g.appendChild(make("rect",{x:cx-30,y:cy+dy-8,width:60,height:14,rx:3,fill:"rgba(45,212,191,.12)",stroke,"stroke-width":3})));
+    return;
+  }
+  if(type==="k8s"){
+    g.appendChild(make("polygon",{points:`${cx},${cy-34} ${cx+29},${cy-17} ${cx+29},${cy+17} ${cx},${cy+34} ${cx-29},${cy+17} ${cx-29},${cy-17}`,fill:"rgba(56,189,248,.12)",stroke,"stroke-width":4}));
+    g.appendChild(make("circle",{cx,cy,r:14,fill:"none",stroke,"stroke-width":4}));
+    for(let i=0;i<6;i++){ const a=i*Math.PI/3; g.appendChild(make("line",{x1:cx+Math.cos(a)*14,y1:cy+Math.sin(a)*14,x2:cx+Math.cos(a)*26,y2:cy+Math.sin(a)*26,stroke,"stroke-width":3})); }
+    return;
+  }
+  if(type==="firewall"){
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) g.appendChild(make("rect",{x:cx-33+c*22+(r%2?11:0),y:cy-25+r*18,width:20,height:15,rx:2,fill:"rgba(239,68,68,.12)",stroke,"stroke-width":2}));
+    return;
+  }
+  if(type==="user"){
+    g.appendChild(make("circle",{cx,cy:cy-15,r:15,fill:"rgba(56,189,248,.14)",stroke,"stroke-width":4}));
+    g.appendChild(make("path",{d:`M ${cx-30} ${cy+35} C ${cx-22} ${cy+8}, ${cx+22} ${cy+8}, ${cx+30} ${cy+35}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    return;
+  }
+  if(type==="linux"){
+    g.appendChild(make("ellipse",{cx,cy:cy-2,rx:18,ry:26,fill:"rgba(234,179,8,.14)",stroke,"stroke-width":4}));
+    g.appendChild(make("circle",{cx,cy:cy-16,r:10,fill:"rgba(234,179,8,.14)",stroke,"stroke-width":4}));
+    g.appendChild(make("line",{x1:cx-10,y1:cy+26,x2:cx-18,y2:cy+34,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    g.appendChild(make("line",{x1:cx+10,y1:cy+26,x2:cx+18,y2:cy+34,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    return;
+  }
+  if(type==="lxc"){
+    for(const [dx,dy] of [[-14,-14],[14,-14],[-14,14],[14,14]]){
+      g.appendChild(make("rect",{x:cx+dx-12,y:cy+dy-12,width:24,height:24,rx:4,fill:"rgba(34,197,94,.12)",stroke,"stroke-width":3}));
+    }
+    g.appendChild(make("line",{x1:cx-2,y1:cy-2,x2:cx+2,y2:cy+2,stroke,"stroke-width":3}));
+    return;
+  }
+  if(type==="docker"){
+    const basey = cy+10;
+    for(let r=0;r<2;r++) for(let c=0;c<3;c++) g.appendChild(make("rect",{x:cx-28+c*18,y:basey-18+r*16,width:14,height:12,rx:2,fill:"rgba(56,189,248,.12)",stroke,"stroke-width":2}));
+    g.appendChild(make("path",{d:`M ${cx+4} ${basey+5} C ${cx+18} ${basey+5}, ${cx+22} ${basey-4}, ${cx+30} ${basey-4}`,fill:"none",stroke,"stroke-width":3,"stroke-linecap":"round"}));
+    return;
+  }
+  if(type==="nginx"){
+    g.appendChild(make("polygon",{points:`${cx},${cy-34} ${cx+30},${cy-17} ${cx+30},${cy+17} ${cx},${cy+34} ${cx-30},${cy+17} ${cx-30},${cy-17}`,fill:"rgba(34,197,94,.12)",stroke,"stroke-width":4}));
+    g.appendChild(make("text",{x:cx,y:cy+6,"text-anchor":"middle",fill:stroke,"font-size":22,"font-family":"Inter, Arial","font-weight":"900"})).textContent="N";
+    return;
+  }
+  if(type==="prometheus"){
+    g.appendChild(make("circle",{cx,cy,r:24,fill:"rgba(251,146,60,.12)",stroke,"stroke-width":4}));
+    g.appendChild(make("line",{x1:cx,y1:cy,x2:cx+16,y2:cy-14,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    g.appendChild(make("circle",{cx,cy,r:4,fill:stroke}));
+    return;
+  }
+  if(type==="grafana"){
+    g.appendChild(make("path",{d:`M ${cx-28} ${cy+10} C ${cx-28} ${cy-10}, ${cx-10} ${cy-26}, ${cx+10} ${cy-24} C ${cx+26} ${cy-22}, ${cx+34} ${cy-6}, ${cx+30} ${cy+10} C ${cx+24} ${cy+28}, ${cx+6} ${cy+34}, ${cx-12} ${cy+26} Z`,fill:"rgba(249,115,22,.12)",stroke,"stroke-width":4}));
+    g.appendChild(make("circle",{cx:cx+2,cy:cy+2,r:10,fill:"none",stroke,"stroke-width":4}));
+    return;
+  }
+  if(type==="terraform"){
+    g.appendChild(make("polygon",{points:`${cx-26},${cy-18} ${cx-6},${cy-30} ${cx+14},${cy-18} ${cx-6},${cy-6}`,fill:"rgba(167,139,250,.18)",stroke,"stroke-width":3}));
+    g.appendChild(make("polygon",{points:`${cx-26},${cy+8} ${cx-6},${cy-4} ${cx+14},${cy+8} ${cx-6},${cy+20}`,fill:"rgba(167,139,250,.14)",stroke,"stroke-width":3}));
+    g.appendChild(make("polygon",{points:`${cx-2},${cy+26} ${cx+18},${cy+14} ${cx+38},${cy+26} ${cx+18},${cy+38}`,fill:"rgba(167,139,250,.10)",stroke,"stroke-width":3}));
+    return;
+  }
+  if(type==="loadbalancer"){
+    g.appendChild(make("line",{x1:cx-30,y1:cy-18,x2:cx+30,y2:cy-18,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    g.appendChild(make("line",{x1:cx-30,y1:cy+18,x2:cx+30,y2:cy+18,stroke,"stroke-width":4,"stroke-linecap":"round"}));
+    for(let i of [-20,0,20]) g.appendChild(make("circle",{cx:cx+i,cy:cy,r:8,fill:"rgba(96,165,250,.12)",stroke,"stroke-width":3}));
+    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx,y2:cy+18,stroke,"stroke-width":3}));
+    return;
+  }
+  g.appendChild(make("rect",{x:cx-24,y:cy-24,width:48,height:48,fill:"rgba(255,255,255,.08)",stroke,"stroke-width":4}));
+}
+
+function sel(item){ return make("rect",{x:item.x-7,y:item.y-7,width:item.w+14,height:item.h+14,fill:"none",stroke:"#22d3ee","stroke-dasharray":"7 7"}); }
+
+function startInteraction(ev,id){
+  ev.stopPropagation();
+  const item=elements.find(e=>e.id===id);
+  if(connectMode && item && item.type !== "arrow"){
+    handleConnectClick(id);
+    return;
+  }
+  selectedId=id;
+  dragging={id,start:point(ev),original:clone(item)};
+  render();
+}
+function handleConnectClick(id){
+  if(!connectSourceId){
+    connectSourceId=id;
+    selectedId=id;
+    render();
+    return;
+  }
+  if(connectSourceId === id){
+    connectSourceId=null;
+    render();
+    return;
+  }
+  commit([...elements, {id:uid(),type:"arrow",from:connectSourceId,to:id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}]);
+  connectSourceId=null;
+  selectedId=id;
+  render();
+}
+function point(ev){ const r=stage.getBoundingClientRect(); return {x:(ev.clientX-r.left)/scale,y:(ev.clientY-r.top)/scale}; }
+stage.addEventListener("pointermove",ev=>{
+  const p=point(ev);
+
+  if(tempConnector){
+    tempConnector.x2 = p.x;
+    tempConnector.y2 = p.y;
+    const hover = findShapeAtClientPoint(ev.clientX, ev.clientY, tempConnector.fromId);
+    tempConnector.hoverTargetId = hover ? hover.id : null;
+    render();
+    return;
+  }
+
+  if(resizing){
+    const dx=p.x-resizing.start.x, dy=p.y-resizing.start.y, o=resizing.original;
+    elements=elements.map(e=>{
+      if(e.id!==resizing.id)return e;
+      return {...e,w:Math.max(80,o.w+dx),h:Math.max(60,o.h+dy)};
+    });
+    render();
+    return;
+  }
+
+  if(!dragging)return;
+  const dx=p.x-dragging.start.x,dy=p.y-dragging.start.y,o=dragging.original;
+  elements=elements.map(e=>{
+    if(e.id!==dragging.id)return e;
+    if(e.type==="arrow" && !e.from && !e.to)return {...e,x1:o.x1+dx,y1:o.y1+dy,x2:o.x2+dx,y2:o.y2+dy};
+    if(e.type==="arrow")return e;
+    return {...e,x:o.x+dx,y:o.y+dy};
+  });
+  render();
+});
+stage.addEventListener("pointerup",ev=>{
+  if(tempConnector){
+    const target = findShapeAtClientPoint(ev.clientX, ev.clientY, tempConnector.fromId);
+    if(target){
+      commit([...elements, {id:uid(),type:"arrow",from:tempConnector.fromId,to:target.id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}]);
+      selectedId = target.id;
+    } else {
+      render();
+    }
+    tempConnector = null;
+    return;
+  }
+  if(resizing){ save(); resizing=null; return; }
+  if(dragging){save();dragging=null;}
+});
+stage.addEventListener("pointerleave",()=>{ if(dragging){save();dragging=null;} if(resizing){save();resizing=null;} });
+stage.addEventListener("pointerdown",()=>{ selectedId=null; connectSourceId=null; render(); });
+
+function add(item){ const n={...item,id:uid()}; commit([...elements,n]); selectedId=n.id; render(); }
+function addText(){ add({type:"text",x:440,y:210,w:360,h:70,text:"New text",fontSize:36,fill:"#f8fafc",stroke:"transparent"}); }
+function addNote(){ add({type:"note",x:420,y:230,w:250,h:120,text:"Runbook note",fontSize:20,bg:"#1e293b",stroke:"#facc15",labelColor:"#f8fafc",radius:18}); }
+function addBox(){ add({type:"box",x:430,y:250,w:190,h:100,text:"Step",fontSize:20,bg:"#1e293b",stroke:"#38bdf8"}); }
+function addCircle(){ add({type:"circle",x:455,y:250,w:145,h:110,text:"Node",fontSize:20,bg:"#1e293b",stroke:"#38bdf8"}); }
+function addDiamond(){ add({type:"diamond",x:440,y:230,w:170,h:140,text:"Decision?",fontSize:20,bg:"#1e293b",stroke:"#f59e0b"}); }
+function addArrow(){ add(arrow(360,340,670,340)); }
+function addSwimlane(){ add({type:"swimlane",x:120,y:160,w:1120,h:210,text:"Production Environment",fontSize:18,bg:"rgba(15,23,42,.35)",stroke:"#475569",fill:"#cbd5e1"}); }
+function addIcon(text,iconType,fill,stroke){ add({type:"icon",iconType,x:430,y:245,w:160,h:125,text,fill,stroke,bg:"#0f172a",fontSize:20}); }
+
+function templateK8s(){
+  const a=node("Ingress","cloud",120,250,"#38bdf8","#bae6fd"), b=node("Service","network",390,250,"#60a5fa","#bfdbfe"), c=node("Pods","k8s",660,250,"#a78bfa","#ddd6fe"), d=node("Storage","database",930,250,"#34d399","#bbf7d0"), p=node("Policy","shield",660,500,"#f97316","#fed7aa");
+  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Kubernetes Architecture",fontSize:46,fill:"#f8fafc"},...a,...b,...c,...d,...p, conn(a[0],b[0]), conn(b[0],c[0]), conn(c[0],d[0]), conn(c[0],p[0])]);
+}
+function templateIncident(){
+  const alert={id:uid(),type:"box",x:140,y:260,w:190,h:100,text:"Alert",bg:"#1e293b",stroke:"#38bdf8",fontSize:22};
+  const impact={id:uid(),type:"diamond",x:450,y:238,w:170,h:145,text:"Impact?",bg:"#1e293b",stroke:"#f59e0b",fontSize:20};
+  const mitigate={id:uid(),type:"box",x:760,y:260,w:200,h:100,text:"Mitigate",bg:"#1e293b",stroke:"#22c55e",fontSize:22};
+  const post={id:uid(),type:"box",x:1070,y:260,w:220,h:100,text:"Postmortem",bg:"#1e293b",stroke:"#a78bfa",fontSize:22};
+  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Incident Response Flow",fontSize:46,fill:"#f8fafc"}, alert, impact, mitigate, post, conn(alert,impact), conn(impact,mitigate), conn(mitigate,post)]);
+}
+function templateCicd(){
+  const git=node("Git","git",120,275,"#f97316","#fed7aa");
+  const build={id:uid(),type:"box",x:390,y:288,w:190,h:100,text:"Build",bg:"#1e293b",stroke:"#38bdf8",fontSize:22};
+  const test={id:uid(),type:"box",x:690,y:288,w:190,h:100,text:"Test",bg:"#1e293b",stroke:"#22c55e",fontSize:22};
+  const deploy={id:uid(),type:"box",x:990,y:288,w:190,h:100,text:"Deploy",bg:"#1e293b",stroke:"#a78bfa",fontSize:22};
+  commit([{id:uid(),type:"text",x:510,y:65,w:420,h:70,text:"CI/CD Pipeline",fontSize:46,fill:"#f8fafc"},...git,build,test,deploy,conn(git[0],build),conn(build,test),conn(test,deploy)]);
+}
+function templateZeroTrust(){
+  const u=node("User","user",120,260,"#38bdf8","#bae6fd"), i=node("Identity","shield",390,260,"#f97316","#fed7aa"), p=node("Policy","firewall",660,260,"#a78bfa","#ddd6fe"), app=node("Private App","cloud",930,260,"#22c55e","#bbf7d0");
+  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Zero Trust Access Flow",fontSize:46,fill:"#f8fafc"},...u,...i,...p,...app,conn(u[0],i[0]),conn(i[0],p[0]),conn(p[0],app[0])]);
+}
+function templateObservability(){
+  const svc=node("Service","server",180,260,"#a78bfa","#ddd6fe"), m=node("Metrics","monitor",480,180,"#facc15","#fef08a"), l=node("Logs","queue",480,340,"#2dd4bf","#99f6e4"), t=node("Traces","network",780,260,"#38bdf8","#bae6fd"), al=node("Alerting","shield",1080,260,"#fb7185","#fecdd3");
+  commit([{id:uid(),type:"text",x:400,y:65,w:650,h:70,text:"SRE Observability Map",fontSize:46,fill:"#f8fafc"},...svc,...m,...l,...t,...al,conn(svc[0],m[0]),conn(svc[0],l[0]),conn(m[0],t[0]),conn(l[0],t[0]),conn(t[0],al[0])]);
+}
+function conn(a,b){ return {id:uid(),type:"arrow",from:a.id,to:b.id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}; }
+
+function renderInspector(){
+  const p=document.getElementById("inspector");
+  const e=elements.find(x=>x.id===selectedId);
+  if(!e){ p.innerHTML='<div class="hint">Select an element to edit position, size, label, colors, and icon type.</div>'; return; }
+  const normal=e.type!=="arrow";
+  p.innerHTML=`
+    <div class="card"><div class="small">Selected</div><b>${e.type}</b></div>
+    ${normal?`<div class="field"><label>Label</label><textarea id="iText">${esc(e.text||"")}</textarea></div>`:""}
+    ${e.type==="icon"?`
+      <div class="field"><label>Icon type</label><select id="iIconType">
+        ${["server","cloud","database","shield","network","git","monitor","queue","k8s","firewall","user","linux","lxc","docker","nginx","prometheus","grafana","terraform","loadbalancer"].map(t=>`<option value="${t}" ${t===(e.iconType||"server")?"selected":""}>${t}</option>`).join("")}
+      </select></div>
+    `:""}
+    ${normal?`
+      <div class="two"><div class="field"><label>X</label><input id="iX" type="number" value="${e.x||0}"></div><div class="field"><label>Y</label><input id="iY" type="number" value="${e.y||0}"></div></div>
+      <div class="two"><div class="field"><label>Width</label><input id="iW" type="number" value="${e.w||0}"></div><div class="field"><label>Height</label><input id="iH" type="number" value="${e.h||0}"></div></div>
+    `:`
+      <div class="warn">Connected arrows follow their objects automatically. Free arrows can be edited by coordinates.</div>
+      <div class="two"><div class="field"><label>X1</label><input id="ix1" type="number" value="${e.x1||0}"></div><div class="field"><label>Y1</label><input id="iy1" type="number" value="${e.y1||0}"></div></div>
+      <div class="two"><div class="field"><label>X2</label><input id="ix2" type="number" value="${e.x2||0}"></div><div class="field"><label>Y2</label><input id="iy2" type="number" value="${e.y2||0}"></div></div>
+    `}
+    <div class="two">
+      ${normal?`<div class="field"><label>Background</label><input id="iBg" type="color" value="${col(e.bg||e.fill)}"></div>`:""}
+      <div class="field"><label>Stroke / Icon</label><input id="iStroke" type="color" value="${col(e.stroke)}"></div>
+    </div>
+    ${normal?`<div class="two"><div class="field"><label>Font size</label><input id="iFont" type="number" value="${e.fontSize||18}"></div><div class="field"><label>Radius</label><input id="iRadius" type="number" value="${e.radius||18}"></div></div>`:""}
+  `;
+  bind(e.id);
+}
+function bind(id){
+  const map={iText:v=>({text:v}),iX:v=>({x:+v}),iY:v=>({y:+v}),iW:v=>({w:+v}),iH:v=>({h:+v}),iBg:v=>({bg:v}),iStroke:v=>({stroke:v,fill:v}),iFont:v=>({fontSize:+v}),iRadius:v=>({radius:+v}),iIconType:v=>({iconType:v}),ix1:v=>({x1:+v,from:null}),iy1:v=>({y1:+v,from:null}),ix2:v=>({x2:+v,to:null}),iy2:v=>({y2:+v,to:null})};
+  Object.entries(map).forEach(([idn,fn])=>{ const input=document.getElementById(idn); if(input) input.addEventListener("input",ev=>{elements=elements.map(e=>e.id===id?{...e,...fn(ev.target.value)}:e);save();render();}); });
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
+function col(v){ return (!v||v==="transparent"||String(v).startsWith("rgba"))?"#ffffff":v; }
+
+function copySelected(){ const e=elements.find(x=>x.id===selectedId); if(!e)return; clipboardItem=clone(e); }
+function pasteCopied(){
+  if(!clipboardItem)return;
+  const c=clone(clipboardItem); c.id=uid(); c.from=null; c.to=null;
+  if(c.type==="arrow"){c.x1=(c.x1||0)+35;c.y1=(c.y1||0)+35;c.x2=(c.x2||0)+35;c.y2=(c.y2||0)+35}else{c.x=(c.x||0)+35;c.y=(c.y||0)+35}
+  commit([...elements,c]); selectedId=c.id; render();
+}
+function duplicateSelected(){ copySelected(); pasteCopied(); }
+function deleteSelected(){ if(!selectedId)return; commit(elements.filter(e=>e.id!==selectedId && e.from!==selectedId && e.to!==selectedId)); selectedId=null; render(); }
+function bringForward(){ const i=elements.findIndex(e=>e.id===selectedId); if(i<0||i===elements.length-1)return; const a=[...elements]; [a[i],a[i+1]]=[a[i+1],a[i]]; commit(a); }
+function sendBackward(){ const i=elements.findIndex(e=>e.id===selectedId); if(i<=0)return; const a=[...elements]; [a[i],a[i-1]]=[a[i-1],a[i]]; commit(a); }
+function clearCanvas(){ if(confirm("Clear canvas?")){commit([]);selectedId=null;} }
+function undo(){ if(!history.length)return; future.unshift(clone(elements)); elements=history.pop(); save(); render(); }
+function redo(){ if(!future.length)return; history.push(clone(elements)); elements=future.shift(); save(); render(); }
+function toggleGrid(){ showGrid=!showGrid; document.getElementById("gridBtn").classList.toggle("primary",showGrid); render(); }
+function zoom(delta){ scale=Math.max(.45,Math.min(1.8,+(scale+delta).toFixed(2))); stage.style.width=1440*scale+"px"; stage.style.height=820*scale+"px"; document.getElementById("zoomLabel").textContent=Math.round(scale*100)+"%"; }
+function fitDefault(){ scale=1; stage.style.width="1440px"; stage.style.height="820px"; document.getElementById("zoomLabel").textContent="100%"; }
+function toggleConnectMode(){ connectMode=!connectMode; connectSourceId=null; updateConnectUI(); render(); }
+function updateConnectUI(){
+  const b=document.getElementById("connectBtn"), h=document.getElementById("connectHelp");
+  if(!b||!h)return;
+  b.classList.toggle("active",connectMode);
+  b.textContent = connectMode ? "Connector: ON" : "Connector: OFF";
+  h.innerHTML = connectMode ? (connectSourceId ? "First shape selected. Now click the second shape to connect them." : "Click the first shape, then click the second shape. The connector will attach to the edges.") : "Turn Connector ON and click two shapes, or drag from the small connector dot on a selected shape to another shape. Use the resize handle to make boxes bigger or smaller with the mouse.";
+}
+
+function svgMarkup(){ const c=stage.cloneNode(true); c.setAttribute("xmlns",SVG); return new XMLSerializer().serializeToString(c); }
+function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+function exportSVG(){ download(new Blob([svgMarkup()],{type:"image/svg+xml"}),"hypernexa-diagram.svg"); }
+function exportJSON(){ download(new Blob([JSON.stringify(elements,null,2)],{type:"application/json"}),"hypernexa-diagram-project.json"); }
+function exportPNG(){
+  const img=new Image(), url=URL.createObjectURL(new Blob([svgMarkup()],{type:"image/svg+xml;charset=utf-8"}));
+  img.onload=()=>{ const c=document.createElement("canvas"); c.width=1440; c.height=820; c.getContext("2d").drawImage(img,0,0); URL.revokeObjectURL(url); c.toBlob(b=>download(b,"hypernexa-diagram.png")); };
+  img.src=url;
+}
+imageInput.addEventListener("change",ev=>{ const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>add({type:"image",x:420,y:220,w:320,h:220,src:r.result}); r.readAsDataURL(f); ev.target.value=""; });
+jsonInput.addEventListener("change",async ev=>{ const f=ev.target.files[0]; if(!f)return; try{ const data=JSON.parse(await f.text()); if(Array.isArray(data)) commit(data); else alert("Invalid project file"); }catch{alert("Invalid JSON file")} ev.target.value=""; });
+
+document.addEventListener("keydown",ev=>{
+  const focused = ["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName);
+  if((ev.key==="Delete"||ev.key==="Backspace") && selectedId && !focused) deleteSelected();
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="c" && !focused){ ev.preventDefault(); copySelected(); }
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="v" && !focused){ ev.preventDefault(); pasteCopied(); }
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="s"){ ev.preventDefault(); exportJSON(); }
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="e"){ ev.preventDefault(); exportPNG(); }
+});
+load();
+</script>
 </body>
 </html>
