@@ -1,759 +1,939 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HyperNexa DevOps & SRE Diagram Studio</title>
-  <meta name="description" content="A standalone DevOps and SRE diagram studio for architecture diagrams, flowcharts, incident flows, and platform maps." />
-  <style>
-    *{box-sizing:border-box}
-    :root{
-      --bg:#020617;--panel:#0f172a;--muted:#94a3b8;--text:#f8fafc;
-      --line:rgba(255,255,255,.12);--cyan:#22d3ee;--red:#fb7185;--green:#22c55e;--orange:#f97316;--purple:#a78bfa
-    }
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
-    .app{height:100vh;display:grid;grid-template-rows:64px 1fr}
-    .topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#020617;border-bottom:1px solid var(--line)}
-    .brand{display:flex;align-items:center;gap:12px;min-width:0}
-    .logo{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.45);color:#a5f3fc;font-weight:900}
-    .brand-title{font-weight:900;font-size:17px;white-space:nowrap}
-    .brand-sub{font-size:12px;color:var(--muted);white-space:nowrap;margin-top:2px}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    button,input,select,textarea{font:inherit}
-    button{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:9px 11px;border-radius:12px;cursor:pointer;transition:.15s}
-    button:hover{background:rgba(255,255,255,.12);border-color:rgba(34,211,238,.45)}
-    button.primary{background:rgba(34,211,238,.16);border-color:rgba(34,211,238,.45);color:#cffafe}
-    button.danger{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35);color:#fecdd3}
-    button.active{background:rgba(34,211,238,.25);border-color:#22d3ee;color:white}
-    .workspace{height:calc(100vh - 64px);display:grid;grid-template-columns:286px 1fr 330px}
-    aside{background:rgba(15,23,42,.96);border-right:1px solid var(--line);padding:14px;overflow:auto}
-    aside.right{border-right:0;border-left:1px solid var(--line)}
-    .section{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:900;margin:18px 0 10px}
-    .section:first-child{margin-top:0}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .stack{display:grid;gap:8px}
-    .hint{padding:12px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.08);border-radius:16px;color:#cffafe;font-size:12.5px;line-height:1.5}
-    .warn{padding:12px;border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.08);border-radius:16px;color:#fde68a;font-size:12.5px;line-height:1.5}
-    .canvas-shell{overflow:auto;background:radial-gradient(circle at top,#172554 0,#0f172a 42%,#020617 100%);padding:22px}
-    .canvas-card{width:max-content;margin:0 auto;padding:14px;border:1px solid var(--line);border-radius:22px;background:rgba(0,0,0,.22);box-shadow:0 30px 90px rgba(0,0,0,.45)}
-    #stage{display:block;border-radius:16px;background:#020617;touch-action:none;user-select:none}
-    label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
-    input,textarea,select{width:100%;border:1px solid var(--line);background:#020617;color:var(--text);border-radius:12px;padding:9px;outline:none}
-    textarea{min-height:70px;resize:vertical}
-    input[type=color]{height:42px;padding:4px}
-    .field{margin-bottom:12px}
-    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .card{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:16px;padding:12px;margin-bottom:12px}
-    .small{font-size:12px;color:var(--muted);line-height:1.45}
-    .kbd{font-size:11px;color:#cbd5e1;background:#020617;border:1px solid var(--line);border-radius:8px;padding:2px 6px}
-    .footer-note{position:fixed;right:16px;bottom:12px;color:#64748b;font-size:11px;pointer-events:none}
-    @media(max-width:1100px){body{overflow:auto}.workspace{height:auto;grid-template-columns:1fr}.canvas-shell{min-height:760px}aside,aside.right{border:0;border-bottom:1px solid var(--line)}.brand-sub{display:none}}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HyperNexa DevOps & SRE Diagram Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#020617;--panel:#060f1e;--muted:#64748b;--text:#f1f5f9;--line:rgba(255,255,255,.09);--cyan:#22d3ee;--font:'JetBrains Mono',monospace}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font)}
+.app{height:100vh;display:grid;grid-template-rows:50px 1fr}
+.topbar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#020617;border-bottom:1px solid var(--line);gap:6px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.logo-mark{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#67e8f9;font-weight:900;font-size:10px}
+.brand-title{font-weight:900;font-size:13.5px;white-space:nowrap;color:#e2e8f0}
+.brand-sub{font-size:9.5px;color:var(--muted)}
+.top-actions{display:flex;gap:4px;align-items:center}
+button,input,select,textarea{font:inherit}
+button{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);padding:5px 9px;border-radius:7px;cursor:pointer;transition:all .12s;font-size:11px;white-space:nowrap}
+button:hover{background:rgba(255,255,255,.1);border-color:rgba(34,211,238,.4)}
+button.primary{background:rgba(34,211,238,.13);border-color:rgba(34,211,238,.38);color:#a5f3fc}
+button.danger{background:rgba(244,63,94,.09);border-color:rgba(244,63,94,.3);color:#fda4af}
+button.active{background:rgba(34,211,238,.22);border-color:#22d3ee;color:#fff}
+button.success{background:rgba(34,197,94,.13);border-color:rgba(34,197,94,.38);color:#86efac}
+.workspace{height:calc(100vh - 50px);display:grid;grid-template-columns:252px 1fr 295px;overflow:hidden}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:9px;overflow-y:auto;overflow-x:hidden}
+aside.right{border-right:0;border-left:1px solid var(--line)}
+aside::-webkit-scrollbar{width:3px}
+aside::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.sec{font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:900;margin:13px 0 6px;display:flex;align-items:center;gap:5px}
+.sec:first-child{margin-top:0}
+.sec::after{content:'';flex:1;height:1px;background:var(--line)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.stk{display:grid;gap:4px}
+.hint{padding:8px 10px;border:1px solid rgba(34,211,238,.18);background:rgba(34,211,238,.05);border-radius:9px;color:#a5f3fc;font-size:10.5px;line-height:1.6}
+.warn{padding:8px 10px;border:1px solid rgba(251,191,36,.22);background:rgba(251,191,36,.05);border-radius:9px;color:#fde68a;font-size:10.5px;line-height:1.6}
+.ibtn{display:flex;align-items:center;gap:6px;padding:5px 8px;text-align:left;font-size:10.5px;border-radius:7px;overflow:hidden}
+.ibtn .li{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ibtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.canvas-shell{overflow:auto;background:radial-gradient(ellipse at 50% 0%,#0d1f4a 0%,#060f1e 55%,#020617 100%);padding:18px;position:relative}
+.canvas-card{width:max-content;margin:0 auto;padding:9px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.18);box-shadow:0 20px 70px rgba(0,0,0,.55)}
+#stage{display:block;border-radius:11px;background:#020617;touch-action:none;user-select:none;outline:none}
+#stage:focus{box-shadow:0 0 0 2px rgba(34,211,238,.22)}
+label{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:#020b18;color:var(--text);border-radius:7px;padding:6px 8px;outline:none;font-size:11px}
+input:focus,textarea:focus,select:focus{border-color:rgba(34,211,238,.38)}
+textarea{min-height:50px;resize:vertical}
+input[type=color]{height:34px;padding:2px;cursor:pointer}
+.fld{margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:9px;padding:8px;margin-bottom:8px}
+.small{font-size:10px;color:var(--muted);line-height:1.5}
+.kbd{font-size:9.5px;color:#94a3b8;background:#020b18;border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700}
+.bc{background:rgba(34,211,238,.13);color:#67e8f9;border:1px solid rgba(34,211,238,.28)}
+.bg2{background:rgba(34,197,94,.13);color:#86efac;border:1px solid rgba(34,197,94,.28)}
+.foot{position:fixed;right:11px;bottom:7px;color:#1e3a5f;font-size:9.5px;pointer-events:none}
+/* edge-port hotspot overlay */
+.port-overlay{position:absolute;pointer-events:none}
+</style>
 </head>
 <body>
 <div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">HN</div>
-      <div>
-        <div class="brand-title">HyperNexa DevOps & SRE Diagram Studio</div>
-        <div class="brand-sub">Standalone static app with copy/paste, smart connectors, real DevOps icons, export, and local save.</div>
-      </div>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo-mark">HN</div>
+    <div>
+      <div class="brand-title">HyperNexa DevOps &amp; SRE Studio</div>
+      <div class="brand-sub">80+ real logos &bull; Draw connections from any edge point &bull; Arrow key nudge</div>
     </div>
-    <div class="top-actions">
-      <button onclick="undo()">Undo</button>
-      <button onclick="redo()">Redo</button>
-      <button id="gridBtn" class="primary" onclick="toggleGrid()">Grid</button>
-      <button onclick="zoom(-.1)">−</button>
-      <button id="zoomLabel">100%</button>
-      <button onclick="zoom(.1)">+</button>
-    </div>
-  </header>
-
-  <div class="workspace">
-    <aside>
-      <div class="section">Draw</div>
-      <div class="grid2">
-        <button onclick="addText()">Text</button>
-        <button onclick="addNote()">Note</button>
-        <button onclick="addBox()">Box</button>
-        <button onclick="addCircle()">Circle</button>
-        <button onclick="addDiamond()">Decision</button>
-        <button onclick="addArrow()">Free Arrow</button>
-        <button onclick="imageInput.click()">Image</button>
-        <button onclick="addSwimlane()">Swimlane</button>
-      </div>
-
-      <div class="section">Connect</div>
-      <div class="stack">
-        <button id="connectBtn" class="primary" onclick="toggleConnectMode()">Connector: OFF</button>
-        <div id="connectHelp" class="hint">Turn Connector ON and click two shapes, or drag from the small connector dot on a selected shape to another shape. Use the resize handle to make boxes bigger or smaller with the mouse.</div>
-      </div>
-
-      <div class="section">DevOps / SRE Icons</div>
-      <div class="grid2">
-        <button onclick="addIcon('Server','server','#a78bfa','#ddd6fe')">Server</button>
-        <button onclick="addIcon('Cloud','cloud','#38bdf8','#bae6fd')">Cloud</button>
-        <button onclick="addIcon('Database','database','#34d399','#bbf7d0')">Database</button>
-        <button onclick="addIcon('Security','shield','#f97316','#fed7aa')">Security</button>
-        <button onclick="addIcon('Network','network','#60a5fa','#bfdbfe')">Network</button>
-        <button onclick="addIcon('Git','git','#fb7185','#fecdd3')">Git</button>
-        <button onclick="addIcon('Monitor','monitor','#facc15','#fef08a')">Monitor</button>
-        <button onclick="addIcon('Queue','queue','#2dd4bf','#99f6e4')">Queue</button>
-        <button onclick="addIcon('Kubernetes','k8s','#38bdf8','#bae6fd')">K8s</button>
-        <button onclick="addIcon('Firewall','firewall','#ef4444','#fecaca')">Firewall</button>
-        <button onclick="addIcon('Linux','linux','#eab308','#fde68a')">Linux</button>
-        <button onclick="addIcon('LXC','lxc','#22c55e','#bbf7d0')">LXC</button>
-        <button onclick="addIcon('Docker','docker','#38bdf8','#bae6fd')">Docker</button>
-        <button onclick="addIcon('Nginx','nginx','#22c55e','#bbf7d0')">Nginx</button>
-        <button onclick="addIcon('Prometheus','prometheus','#fb923c','#fed7aa')">Prometheus</button>
-        <button onclick="addIcon('Grafana','grafana','#f97316','#fdba74')">Grafana</button>
-        <button onclick="addIcon('Terraform','terraform','#a78bfa','#ddd6fe')">Terraform</button>
-        <button onclick="addIcon('Load Balancer','loadbalancer','#60a5fa','#bfdbfe')">LB</button>
-      </div>
-
-      <div class="section">Templates</div>
-      <div class="stack">
-        <button onclick="templateK8s()">Kubernetes Architecture</button>
-        <button onclick="templateIncident()">Incident Response Flow</button>
-        <button onclick="templateCicd()">CI/CD Pipeline</button>
-        <button onclick="templateZeroTrust()">Zero Trust Access</button>
-        <button onclick="templateObservability()">Observability Map</button>
-      </div>
-
-      <div class="section">Import / Export</div>
-      <div class="stack">
-        <button class="primary" onclick="exportPNG()">Export PNG</button>
-        <button onclick="exportSVG()">Export SVG</button>
-        <button onclick="exportJSON()">Save Project JSON</button>
-        <button onclick="jsonInput.click()">Open Project JSON</button>
-      </div>
-
-      <div class="section">Shortcuts</div>
-      <div class="hint">
-        <span class="kbd">Ctrl+C</span> copy selected<br>
-        <span class="kbd">Ctrl+V</span> paste<br>
-        <span class="kbd">Delete</span> remove<br>
-        <span class="kbd">Ctrl+S</span> save JSON<br>
-        <span class="kbd">Ctrl+E</span> export PNG
-      </div>
-
-      <input id="imageInput" type="file" accept="image/*" hidden>
-      <input id="jsonInput" type="file" accept="application/json" hidden>
-    </aside>
-
-    <main class="canvas-shell">
-      <div class="canvas-card">
-        <svg id="stage" width="1440" height="820" viewBox="0 0 1440 820"></svg>
-      </div>
-    </main>
-
-    <aside class="right">
-      <div class="section">Inspector</div>
-      <div id="inspector"><div class="hint">Select an element to edit position, size, label, colors, and icon type.</div></div>
-
-      <div class="section">Selected Actions</div>
-      <div class="stack">
-        <button onclick="copySelected()">Copy selected</button>
-        <button onclick="pasteCopied()">Paste</button>
-        <button onclick="bringForward()">Bring forward</button>
-        <button onclick="sendBackward()">Send backward</button>
-        <button onclick="duplicateSelected()">Duplicate selected</button>
-        <button class="danger" onclick="deleteSelected()">Delete selected</button>
-      </div>
-
-      <div class="section">Canvas</div>
-      <div class="stack">
-        <button onclick="fitDefault()">Reset zoom</button>
-        <button class="danger" onclick="clearCanvas()">Clear canvas</button>
-      </div>
-
-      <div class="section">Storage</div>
-      <div class="hint">
-        Projects auto-save in the browser. For sharing or backup, use <b>Save Project JSON</b>.
-      </div>
-    </aside>
   </div>
+  <div class="top-actions">
+    <button onclick="undo()" title="Ctrl+Z">&#8617; Undo</button>
+    <button onclick="redo()" title="Ctrl+Y">&#8618; Redo</button>
+    <button id="gridBtn" class="primary" onclick="toggleGrid()">&#8862; Grid</button>
+    <button onclick="zoom(-.1)">&#8722;</button>
+    <button id="zoomLbl" style="min-width:46px;text-align:center;cursor:default">100%</button>
+    <button onclick="zoom(.1)">+</button>
+    <button onclick="fitDefault()">&#10234; Fit</button>
+    <button class="success" onclick="exportPNG()" title="Ctrl+E">&#8595; PNG</button>
+    <button onclick="exportSVG()">&#8595; SVG</button>
+    <button onclick="exportJSON()" title="Ctrl+S">&#8595; JSON</button>
+    <button onclick="jsonInput.click()">&#8593; Open</button>
+  </div>
+</header>
+<div class="workspace">
+<aside id="leftPanel">
+  <div class="sec">Shapes</div>
+  <div class="g2">
+    <button onclick="addBox()">&#9633; Box</button>
+    <button onclick="addText()">T Text</button>
+    <button onclick="addCircle()">&#9675; Circle</button>
+    <button onclick="addDiamond()">&#9671; Decision</button>
+    <button onclick="addNote()">&#9998; Note</button>
+    <button onclick="addSwimlane()">&#9645; Swimlane</button>
+    <button onclick="addArrow()">&#8594; Free Arrow</button>
+    <button onclick="imageInput.click()">&#9724; Image</button>
+  </div>
+  <div class="sec">Connect Mode</div>
+  <div class="stk">
+    <button id="connectBtn" class="primary" onclick="toggleConnectMode()">&#9889; Connector: OFF</button>
+    <div id="connectHelp" class="hint">OFF: hover any shape edge to see port dots, then drag from any port to connect.<br>ON: click source then target.</div>
+  </div>
+  <div id="toolSections"></div>
+  <input id="imageInput" type="file" accept="image/*" hidden>
+  <input id="jsonInput" type="file" accept="application/json" hidden>
+</aside>
+<main class="canvas-shell" id="canvasShell">
+  <div class="canvas-card">
+    <svg id="stage" width="1700" height="960" viewBox="0 0 1700 960" tabindex="0"></svg>
+  </div>
+</main>
+<aside class="right">
+  <div class="sec">Inspector</div>
+  <div id="inspector"><div class="hint">Select an element to edit properties.<br><br><b>Arrow keys</b>: nudge 1px<br><b>Shift+Arrow</b>: 10px<br><b>Ctrl+Arrow</b>: 50px<br><br><b>Drag from any edge port</b> to start a connection (hover shape to reveal ports).</div></div>
+  <div class="sec">Actions</div>
+  <div class="stk">
+    <div class="two">
+      <button onclick="copySelected()">&#8853; Copy</button>
+      <button onclick="pasteCopied()">&#8854; Paste</button>
+    </div>
+    <div class="two">
+      <button onclick="bringForward()">&#8593; Forward</button>
+      <button onclick="sendBackward()">&#8595; Backward</button>
+    </div>
+    <button onclick="dupSelected()">&#8853; Duplicate (Ctrl+D)</button>
+    <button class="danger" onclick="deleteSelected()">&#10005; Delete (Del)</button>
+  </div>
+  <div class="sec">Templates</div>
+  <div class="stk">
+    <button onclick="tplK8s()">&#9736; Kubernetes Architecture</button>
+    <button onclick="tplCicd()">&#9881; CI/CD Pipeline</button>
+    <button onclick="tplIncident()">&#9888; Incident Response</button>
+    <button onclick="tplZeroTrust()">&#128274; Zero Trust</button>
+    <button onclick="tplObservability()">&#128200; Observability Stack</button>
+    <button onclick="tplGitOps()">&#8635; GitOps Flow</button>
+    <button onclick="tplMicroservices()">&#128376; Microservices</button>
+    <button onclick="tplDataPipeline()">&#8644; Data Pipeline</button>
+    <button onclick="tplSecOps()">&#128737; DevSecOps</button>
+  </div>
+  <div class="sec">Shortcuts</div>
+  <div class="hint" style="font-size:10px;line-height:1.9">
+    <span class="kbd">Hover edge</span> Reveal port dots<br>
+    <span class="kbd">Drag port</span> Draw connection<br>
+    <span class="kbd">&#8592;&#8594;&#8593;&#8595;</span> Move 1px &nbsp;<span class="kbd">Shift</span> &#215;10<br>
+    <span class="kbd">Ctrl+Arrow</span> Move 50px<br>
+    <span class="kbd">Ctrl+Z/Y</span> Undo/Redo<br>
+    <span class="kbd">Ctrl+C/V</span> Copy/Paste<br>
+    <span class="kbd">Ctrl+D</span> Duplicate<br>
+    <span class="kbd">Del</span> Delete &nbsp;<span class="kbd">Esc</span> Deselect<br>
+    <span class="kbd">Alt+Drag</span> Pan canvas<br>
+    <span class="kbd">Ctrl+Scroll</span> Zoom
+  </div>
+  <div class="sec">Canvas</div>
+  <div class="stk">
+    <button onclick="fitDefault()">&#10234; Reset Zoom</button>
+    <button class="danger" onclick="clearCanvas()">&#8856; Clear Canvas</button>
+  </div>
+  <div class="sec">Info</div>
+  <div class="card"><div class="small">80+ real tool logos<br>Draw from <b>any edge port</b> (hover to reveal)<br>Arrow key nudge (1/10/50px)<br>Smart edge connectors<br>Undo/Redo 80 steps<br>Export PNG/SVG/JSON<br><br><span class="badge bc">Static</span> <span class="badge bg2">No server</span></div></div>
+</aside>
 </div>
-<div class="footer-note">HyperNexa Studio • Static GitHub Pages Edition</div>
+</div>
+<div class="foot">HyperNexa Studio &bull; DevOps Edition</div>
 
 <script>
-const SVG = "http://www.w3.org/2000/svg";
-const stage = document.getElementById("stage");
-const imageInput = document.getElementById("imageInput");
-const jsonInput = document.getElementById("jsonInput");
-const STORAGE_KEY = "hypernexa-devops-sre-studio-v2";
+// ── Inline SVG logos (no CDN, no CORS) ──────────────────────────────────────
+// Each returns an SVG string for use inside <image> or drawn directly
+const LOGO_SVG = {
+  // We use simpleicons CDN but with a robust fallback system
+  // Key: tool key -> {url, color} for background colored icon
+};
 
-let elements = [];
-let selectedId = null;
-let showGrid = true;
-let scale = 1;
-let dragging = null;
-let history = [];
-let future = [];
-let clipboardItem = null;
-let connectMode = false;
-let connectSourceId = null;
-let resizing = null;
-let tempConnector = null;
+// Tool catalog with proper simpleicons URLs
+const TOOLS = {
+  // VCS
+  github:        {n:'GitHub',          g:'vcs',    ic:'github',          ic2:'ffffff', bg:'#0d1117',s:'#555',  f:'#fff'},
+  gitlab:        {n:'GitLab',          g:'vcs',    ic:'gitlab',          ic2:'FC6D26', bg:'#1a0a00',s:'#FC6D26',f:'#FC6D26'},
+  bitbucket:     {n:'Bitbucket',       g:'vcs',    ic:'bitbucket',       ic2:'0052CC', bg:'#00060f',s:'#0052CC',f:'#4c9aff'},
+  git:           {n:'Git',             g:'vcs',    ic:'git',             ic2:'F05032', bg:'#1a0a05',s:'#F05032',f:'#F05032'},
+  // CI/CD
+  github_actions:{n:'GitHub Actions',  g:'cicd',   ic:'githubactions',   ic2:'2088FF', bg:'#0d1117',s:'#2088FF',f:'#58a6ff'},
+  gitlab_ci:     {n:'GitLab CI/CD',    g:'cicd',   ic:'gitlab',          ic2:'FC6D26', bg:'#1a0a00',s:'#FC6D26',f:'#FC6D26'},
+  jenkins:       {n:'Jenkins',         g:'cicd',   ic:'jenkins',         ic2:'D24939', bg:'#1a0505',s:'#D24939',f:'#D24939'},
+  circleci:      {n:'CircleCI',        g:'cicd',   ic:'circleci',        ic2:'343434', bg:'#111',   s:'#888',  f:'#fff'},
+  argocd:        {n:'ArgoCD',          g:'cicd',   ic:'argo',            ic2:'EF7B4D', bg:'#1a0c04',s:'#EF7B4D',f:'#EF7B4D'},
+  flux:          {n:'Flux CD',         g:'cicd',   ic:'flux',            ic2:'5468FF', bg:'#07091a',s:'#5468FF',f:'#818cf8'},
+  tekton:        {n:'Tekton',          g:'cicd',   ic:'tekton',          ic2:'FD495C', bg:'#1a0208',s:'#FD495C',f:'#FD495C'},
+  spinnaker:     {n:'Spinnaker',       g:'cicd',   ic:'spinnaker',       ic2:'139BB4', bg:'#001418',s:'#139BB4',f:'#22d3ee'},
+  drone:         {n:'Drone CI',        g:'cicd',   ic:'drone',           ic2:'ffffff', bg:'#111',   s:'#555',  f:'#fff'},
+  // Containers
+  docker:        {n:'Docker',          g:'container',ic:'docker',         ic2:'2496ED', bg:'#01192b',s:'#2496ED',f:'#2496ED'},
+  kubernetes:    {n:'Kubernetes',      g:'container',ic:'kubernetes',     ic2:'326CE5', bg:'#010820',s:'#326CE5',f:'#6b8ef5'},
+  helm:          {n:'Helm',            g:'container',ic:'helm',           ic2:'0F1689', bg:'#010212',s:'#4444cc',f:'#5b7cf5'},
+  podman:        {n:'Podman',          g:'container',ic:'podman',         ic2:'892CA0', bg:'#0d0014',s:'#892CA0',f:'#b975d2'},
+  containerd:    {n:'containerd',      g:'container',ic:'containerd',     ic2:'575757', bg:'#111',   s:'#555',  f:'#aaa'},
+  lxc:           {n:'LXC',            g:'container',ic:'linuxcontainers',ic2:'333333', bg:'#111',   s:'#555',  f:'#aaa'},
+  openshift:     {n:'OpenShift',       g:'container',ic:'redhatopenshift',ic2:'EE0000', bg:'#1a0000',s:'#EE0000',f:'#EE0000'},
+  rancher:       {n:'Rancher',         g:'container',ic:'rancher',        ic2:'0075A8', bg:'#000c12',s:'#0075A8',f:'#38bdf8'},
+  k3s:           {n:'k3s',            g:'container',ic:'k3s',            ic2:'FFC61C', bg:'#181200',s:'#FFC61C',f:'#fde68a'},
+  // IaC
+  terraform:     {n:'Terraform',       g:'iac',     ic:'terraform',       ic2:'7B42BC', bg:'#0d0014',s:'#7B42BC',f:'#a78bfa'},
+  ansible:       {n:'Ansible',         g:'iac',     ic:'ansible',         ic2:'EE0000', bg:'#1a0000',s:'#EE0000',f:'#f87171'},
+  pulumi:        {n:'Pulumi',          g:'iac',     ic:'pulumi',          ic2:'8A3391', bg:'#0e0014',s:'#8A3391',f:'#c084fc'},
+  packer:        {n:'Packer',          g:'iac',     ic:'packer',          ic2:'02A8EF', bg:'#001218',s:'#02A8EF',f:'#38bdf8'},
+  chef:          {n:'Chef',            g:'iac',     ic:'chef',            ic2:'F09820', bg:'#180f00',s:'#F09820',f:'#fbbf24'},
+  puppet:        {n:'Puppet',          g:'iac',     ic:'puppet',          ic2:'FFAE1A', bg:'#181000',s:'#FFAE1A',f:'#fde68a'},
+  crossplane:    {n:'Crossplane',      g:'iac',     ic:'crossplane',      ic2:'EF3641', bg:'#1a0103',s:'#EF3641',f:'#f87171'},
+  // Cloud
+  aws:           {n:'AWS',            g:'cloud',   ic:'amazonaws',       ic2:'FF9900', bg:'#181000',s:'#FF9900',f:'#FB923C'},
+  azure:         {n:'Azure',          g:'cloud',   ic:'microsoftazure',  ic2:'0078D4', bg:'#000d1a',s:'#0078D4',f:'#38bdf8'},
+  gcp:           {n:'Google Cloud',   g:'cloud',   ic:'googlecloud',     ic2:'4285F4', bg:'#000a1a',s:'#4285F4',f:'#60a5fa'},
+  digitalocean:  {n:'DigitalOcean',   g:'cloud',   ic:'digitalocean',    ic2:'0080FF', bg:'#000d1a',s:'#0080FF',f:'#38bdf8'},
+  cloudflare:    {n:'Cloudflare',     g:'cloud',   ic:'cloudflare',      ic2:'F38020', bg:'#180f00',s:'#F38020',f:'#fb923c'},
+  hetzner:       {n:'Hetzner',        g:'cloud',   ic:'hetzner',         ic2:'D50C2D', bg:'#1a0004',s:'#D50C2D',f:'#f87171'},
+  linode:        {n:'Linode/Akamai',  g:'cloud',   ic:'linode',          ic2:'00A95C', bg:'#001209',s:'#00A95C',f:'#34d399'},
+  ovh:           {n:'OVH',            g:'cloud',   ic:'ovh',             ic2:'123F6D', bg:'#000b18',s:'#123F6D',f:'#60a5fa'},
+  vercel:        {n:'Vercel',         g:'cloud',   ic:'vercel',          ic2:'ffffff', bg:'#111',   s:'#555',  f:'#fff'},
+  netlify:       {n:'Netlify',        g:'cloud',   ic:'netlify',         ic2:'00C7B7', bg:'#001614',s:'#00C7B7',f:'#2dd4bf'},
+  // Observability
+  prometheus:    {n:'Prometheus',     g:'obs',     ic:'prometheus',      ic2:'E6522C', bg:'#1a0905',s:'#E6522C',f:'#fb923c'},
+  grafana:       {n:'Grafana',        g:'obs',     ic:'grafana',         ic2:'F46800', bg:'#1a0c00',s:'#F46800',f:'#fb923c'},
+  datadog:       {n:'Datadog',        g:'obs',     ic:'datadog',         ic2:'632CA6', bg:'#0e0018',s:'#632CA6',f:'#a78bfa'},
+  jaeger:        {n:'Jaeger',         g:'obs',     ic:'jaeger',          ic2:'60D0E4', bg:'#001418',s:'#60D0E4',f:'#67e8f9'},
+  otel:          {n:'OpenTelemetry',  g:'obs',     ic:'opentelemetry',   ic2:'425CC7', bg:'#05071a',s:'#425CC7',f:'#818cf8'},
+  elastic:       {n:'Elastic/ELK',    g:'obs',     ic:'elastic',         ic2:'005571', bg:'#000d12',s:'#005571',f:'#22d3ee'},
+  loki:          {n:'Grafana Loki',   g:'obs',     ic:'grafana',         ic2:'F46800', bg:'#1a0c00',s:'#F46800',f:'#fdba74'},
+  zabbix:        {n:'Zabbix',         g:'obs',     ic:'zabbix',          ic2:'CC0000', bg:'#1a0000',s:'#CC0000',f:'#f87171'},
+  newrelic:      {n:'New Relic',      g:'obs',     ic:'newrelic',        ic2:'008C99', bg:'#000f10',s:'#008C99',f:'#22d3ee'},
+  pagerduty:     {n:'PagerDuty',      g:'obs',     ic:'pagerduty',       ic2:'06AC38', bg:'#001508',s:'#06AC38',f:'#34d399'},
+  victoriam:     {n:'VictoriaMetrics',g:'obs',     ic:'victoriametrics', ic2:'621773', bg:'#0d0018',s:'#621773',f:'#c084fc'},
+  sentry:        {n:'Sentry',         g:'obs',     ic:'sentry',          ic2:'362D59', bg:'#0b0b18',s:'#362D59',f:'#a78bfa'},
+  // Networking
+  nginx:         {n:'Nginx',          g:'net',     ic:'nginx',           ic2:'009639', bg:'#001509',s:'#009639',f:'#4ade80'},
+  haproxy:       {n:'HAProxy',        g:'net',     ic:'haproxy',         ic2:'199EC0', bg:'#001218',s:'#199EC0',f:'#67e8f9'},
+  traefik:       {n:'Traefik',        g:'net',     ic:'traefikproxy',    ic2:'24A1C1', bg:'#001218',s:'#24A1C1',f:'#67e8f9'},
+  envoy:         {n:'Envoy Proxy',    g:'net',     ic:'envoyproxy',      ic2:'AC6199', bg:'#120518',s:'#AC6199',f:'#e879f9'},
+  istio:         {n:'Istio',          g:'net',     ic:'istio',           ic2:'466BB0', bg:'#05091a',s:'#466BB0',f:'#818cf8'},
+  consul:        {n:'Consul',         g:'net',     ic:'consul',          ic2:'F24C53', bg:'#1a0508',s:'#F24C53',f:'#f87171'},
+  vault:         {n:'Vault',          g:'net',     ic:'vault',           ic2:'FFEC6E', bg:'#181800',s:'#FFEC6E',f:'#fef08a'},
+  wireguard:     {n:'WireGuard',      g:'net',     ic:'wireguard',       ic2:'88171A', bg:'#1a0004',s:'#88171A',f:'#f87171'},
+  cilium:        {n:'Cilium/eBPF',    g:'net',     ic:'cilium',          ic2:'F8C517', bg:'#181400',s:'#F8C517',f:'#fde68a'},
+  kong:          {n:'Kong Gateway',   g:'net',     ic:'kong',            ic2:'003459', bg:'#00050a',s:'#1e6fa8',f:'#38bdf8'},
+  linkerd:       {n:'Linkerd',        g:'net',     ic:'linkerd',         ic2:'1B6CE3', bg:'#010c1a',s:'#1B6CE3',f:'#60a5fa'},
+  certmanager:   {n:'Cert-Manager',   g:'net',     ic:'letsencrypt',     ic2:'003A70', bg:'#00040f',s:'#003A70',f:'#60a5fa'},
+  // Databases
+  postgresql:    {n:'PostgreSQL',     g:'db',      ic:'postgresql',      ic2:'4169E1', bg:'#040b1a',s:'#4169E1',f:'#818cf8'},
+  mysql:         {n:'MySQL',          g:'db',      ic:'mysql',           ic2:'4479A1', bg:'#040c18',s:'#4479A1',f:'#60a5fa'},
+  mongodb:       {n:'MongoDB',        g:'db',      ic:'mongodb',         ic2:'47A248', bg:'#031008',s:'#47A248',f:'#4ade80'},
+  redis:         {n:'Redis',          g:'db',      ic:'redis',           ic2:'FF4438', bg:'#1a0503',s:'#FF4438',f:'#f87171'},
+  elasticsearch: {n:'Elasticsearch',  g:'db',      ic:'elasticsearch',   ic2:'005571', bg:'#000d12',s:'#005571',f:'#22d3ee'},
+  influxdb:      {n:'InfluxDB',       g:'db',      ic:'influxdb',        ic2:'22ADF6', bg:'#001218',s:'#22ADF6',f:'#67e8f9'},
+  minio:         {n:'MinIO',          g:'db',      ic:'minio',           ic2:'C72E49', bg:'#1a0208',s:'#C72E49',f:'#f87171'},
+  cassandra:     {n:'Cassandra',      g:'db',      ic:'apachecassandra', ic2:'1287B1', bg:'#001018',s:'#1287B1',f:'#38bdf8'},
+  cockroachdb:   {n:'CockroachDB',    g:'db',      ic:'cockroachlabs',   ic2:'6933FF', bg:'#07001a',s:'#6933FF',f:'#a78bfa'},
+  sqlite:        {n:'SQLite',         g:'db',      ic:'sqlite',          ic2:'003B57', bg:'#000a12',s:'#003B57',f:'#38bdf8'},
+  mariadb:       {n:'MariaDB',        g:'db',      ic:'mariadb',         ic2:'003545', bg:'#000b10',s:'#003545',f:'#22d3ee'},
+  neo4j:         {n:'Neo4j',          g:'db',      ic:'neo4j',           ic2:'008CC1', bg:'#000e18',s:'#008CC1',f:'#38bdf8'},
+  clickhouse:    {n:'ClickHouse',     g:'db',      ic:'clickhouse',      ic2:'FFCC01', bg:'#181500',s:'#FFCC01',f:'#fde68a'},
+  // Messaging
+  kafka:         {n:'Apache Kafka',   g:'msg',     ic:'apachekafka',     ic2:'231F20', bg:'#111',   s:'#555',  f:'#e2e8f0'},
+  rabbitmq:      {n:'RabbitMQ',       g:'msg',     ic:'rabbitmq',        ic2:'FF6600', bg:'#180e00',s:'#FF6600',f:'#fb923c'},
+  nats:          {n:'NATS',           g:'msg',     ic:'natsdotio',       ic2:'27AAE1', bg:'#001218',s:'#27AAE1',f:'#67e8f9'},
+  pulsar:        {n:'Apache Pulsar',  g:'msg',     ic:'apachepulsar',    ic2:'188FFF', bg:'#001018',s:'#188FFF',f:'#60a5fa'},
+  // OS
+  linux:         {n:'Linux',          g:'os',      ic:'linux',           ic2:'FCC624', bg:'#181400',s:'#FCC624',f:'#fde68a'},
+  ubuntu:        {n:'Ubuntu',         g:'os',      ic:'ubuntu',          ic2:'E95420', bg:'#180a03',s:'#E95420',f:'#fb923c'},
+  debian:        {n:'Debian',         g:'os',      ic:'debian',          ic2:'A81D33', bg:'#1a0208',s:'#A81D33',f:'#f87171'},
+  alpine:        {n:'Alpine Linux',   g:'os',      ic:'alpinelinux',     ic2:'0D597F', bg:'#000c14',s:'#0D597F',f:'#38bdf8'},
+  nixos:         {n:'NixOS',          g:'os',      ic:'nixos',           ic2:'5277C3', bg:'#05091a',s:'#5277C3',f:'#818cf8'},
+  fedora:        {n:'Fedora',         g:'os',      ic:'fedora',          ic2:'51A2DA', bg:'#040c18',s:'#51A2DA',f:'#60a5fa'},
+  centos:        {n:'CentOS',         g:'os',      ic:'centos',          ic2:'262577', bg:'#05051a',s:'#262577',f:'#818cf8'},
+  windows:       {n:'Windows Server', g:'os',      ic:'windows',         ic2:'0078D4', bg:'#000d1a',s:'#0078D4',f:'#38bdf8'},
+  // Languages
+  python:        {n:'Python',         g:'lang',    ic:'python',          ic2:'3776AB', bg:'#040c18',s:'#3776AB',f:'#60a5fa'},
+  golang:        {n:'Go',             g:'lang',    ic:'go',              ic2:'00ACD7', bg:'#001418',s:'#00ACD7',f:'#67e8f9'},
+  rust:          {n:'Rust',           g:'lang',    ic:'rust',            ic2:'ffffff', bg:'#111',   s:'#555',  f:'#e2e8f0'},
+  nodejs:        {n:'Node.js',        g:'lang',    ic:'nodedotjs',       ic2:'5FA04E', bg:'#061004',s:'#5FA04E',f:'#4ade80'},
+  typescript:    {n:'TypeScript',     g:'lang',    ic:'typescript',      ic2:'3178C6', bg:'#040d1a',s:'#3178C6',f:'#60a5fa'},
+  javascript:    {n:'JavaScript',     g:'lang',    ic:'javascript',      ic2:'F7DF1E', bg:'#181800',s:'#F7DF1E',f:'#fef08a'},
+  java:          {n:'Java',           g:'lang',    ic:'openjdk',         ic2:'ED8B00', bg:'#181000',s:'#ED8B00',f:'#fbbf24'},
+  kotlin:        {n:'Kotlin',         g:'lang',    ic:'kotlin',          ic2:'7F52FF', bg:'#0a0418',s:'#7F52FF',f:'#a78bfa'},
+  scala:         {n:'Scala',          g:'lang',    ic:'scala',           ic2:'DC322F', bg:'#1a0505',s:'#DC322F',f:'#f87171'},
+  csharp:        {n:'C#',             g:'lang',    ic:'csharp',          ic2:'239120', bg:'#051408',s:'#239120',f:'#4ade80'},
+  cpp:           {n:'C++',            g:'lang',    ic:'cplusplus',       ic2:'00599C', bg:'#000c18',s:'#00599C',f:'#38bdf8'},
+  clang:         {n:'C',              g:'lang',    ic:'c',               ic2:'A8B9CC', bg:'#111',   s:'#A8B9CC',f:'#cbd5e1'},
+  ruby:          {n:'Ruby',           g:'lang',    ic:'ruby',            ic2:'CC342D', bg:'#1a0504',s:'#CC342D',f:'#f87171'},
+  php:           {n:'PHP',            g:'lang',    ic:'php',             ic2:'777BB4', bg:'#0c0b18',s:'#777BB4',f:'#a78bfa'},
+  swift:         {n:'Swift',          g:'lang',    ic:'swift',           ic2:'F05138', bg:'#1a0806',s:'#F05138',f:'#fb923c'},
+  dart:          {n:'Dart',           g:'lang',    ic:'dart',            ic2:'0175C2', bg:'#000d1a',s:'#0175C2',f:'#38bdf8'},
+  elixir:        {n:'Elixir',         g:'lang',    ic:'elixir',          ic2:'4B275F', bg:'#0b0514',s:'#4B275F',f:'#c084fc'},
+  haskell:       {n:'Haskell',        g:'lang',    ic:'haskell',         ic2:'5D4F85', bg:'#0b0914',s:'#5D4F85',f:'#a78bfa'},
+  lua:           {n:'Lua',            g:'lang',    ic:'lua',             ic2:'2C2D72', bg:'#04041a',s:'#2C2D72',f:'#818cf8'},
+  rlang:         {n:'R',              g:'lang',    ic:'r',               ic2:'276DC3', bg:'#000d18',s:'#276DC3',f:'#60a5fa'},
+  bash:          {n:'Bash/Shell',     g:'lang',    ic:'gnubash',         ic2:'4EAA25', bg:'#061204',s:'#4EAA25',f:'#4ade80'},
+  // Frameworks
+  react:         {n:'React',          g:'fw',      ic:'react',           ic2:'61DAFB', bg:'#011218',s:'#61DAFB',f:'#67e8f9'},
+  vue:           {n:'Vue.js',         g:'fw',      ic:'vuedotjs',        ic2:'4FC08D', bg:'#011209',s:'#4FC08D',f:'#4ade80'},
+  angular:       {n:'Angular',        g:'fw',      ic:'angular',         ic2:'DD0031', bg:'#1a0004',s:'#DD0031',f:'#f87171'},
+  django:        {n:'Django',         g:'fw',      ic:'django',          ic2:'092E20', bg:'#000c06',s:'#092E20',f:'#34d399'},
+  fastapi:       {n:'FastAPI',        g:'fw',      ic:'fastapi',         ic2:'009688', bg:'#001412',s:'#009688',f:'#2dd4bf'},
+  spring:        {n:'Spring Boot',    g:'fw',      ic:'springboot',      ic2:'6DB33F', bg:'#071404',s:'#6DB33F',f:'#86efac'},
+  nextjs:        {n:'Next.js',        g:'fw',      ic:'nextdotjs',       ic2:'ffffff', bg:'#111',   s:'#555',  f:'#fff'},
+  // Security
+  trivy:         {n:'Trivy',          g:'sec',     ic:'trivy',           ic2:'1904DA', bg:'#010318',s:'#1904DA',f:'#818cf8'},
+  snyk:          {n:'Snyk',           g:'sec',     ic:'snyk',            ic2:'4C5454', bg:'#0a0c0c',s:'#4C5454',f:'#94a3b8'},
+  sonarqube:     {n:'SonarQube',      g:'sec',     ic:'sonarqube',       ic2:'4E9BCD', bg:'#061018',s:'#4E9BCD',f:'#60a5fa'},
+  keycloak:      {n:'Keycloak',       g:'sec',     ic:'keycloak',        ic2:'4D4D4D', bg:'#0a0a0a',s:'#4D4D4D',f:'#94a3b8'},
+  // Registries
+  harbor:        {n:'Harbor',         g:'reg',     ic:'harbor',          ic2:'60B932', bg:'#071200',s:'#60B932',f:'#4ade80'},
+  jfrog:         {n:'JFrog',          g:'reg',     ic:'jfrog',           ic2:'40BE46', bg:'#071200',s:'#40BE46',f:'#4ade80'},
+  nexus:         {n:'Nexus/Sonatype', g:'reg',     ic:'sonatype',        ic2:'1B998B', bg:'#001410',s:'#1B998B',f:'#2dd4bf'},
+  // API
+  grpc:          {n:'gRPC',           g:'api',     ic:'grpc',            ic2:'244C5A', bg:'#000a0c',s:'#244C5A',f:'#22d3ee'},
+  graphql:       {n:'GraphQL',        g:'api',     ic:'graphql',         ic2:'E10098', bg:'#1a0012',s:'#E10098',f:'#e879f9'},
+  openapi:       {n:'OpenAPI',        g:'api',     ic:'openapiinitiative',ic2:'6BA539', bg:'#091204',s:'#6BA539',f:'#86efac'},
+};
 
-function uid(){ return Math.random().toString(36).slice(2,10); }
-function clone(x){ return JSON.parse(JSON.stringify(x)); }
-function pushHistory(){ history.push(clone(elements)); history = history.slice(-60); future = []; }
-function commit(next){ pushHistory(); elements = next; save(); render(); }
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(elements)); }
-function load(){ try{ elements = JSON.parse(localStorage.getItem(STORAGE_KEY)) || starter(); }catch{ elements=starter(); } normalizeOldIcons(); render(); }
-function normalizeOldIcons(){ elements = elements.map(e => e.type === "icon" && !e.iconType ? {...e, iconType: iconTypeFromOld(e.icon, e.text)} : e); }
-function iconTypeFromOld(icon, text){
-  const t = String(text||"").toLowerCase();
-  if(t.includes("database") || icon === "◉") return "database";
-  if(t.includes("cloud") || icon === "☁") return "cloud";
-  if(t.includes("git") || icon === "⑂") return "git";
-  if(t.includes("security") || icon === "◆") return "shield";
-  if(t.includes("network") || icon === "⌁") return "network";
-  if(t.includes("monitor") || icon === "◌") return "monitor";
-  if(t.includes("queue") || icon === "▤") return "queue";
-  return "server";
+const GROUPS = {
+  vcs:'Version Control',cicd:'CI/CD',container:'Containers & Orchestration',
+  iac:'Infrastructure as Code',cloud:'Cloud Providers',obs:'Observability & Monitoring',
+  net:'Networking & Security',db:'Databases & Storage',msg:'Messaging & Streaming',
+  os:'Operating Systems',lang:'Programming Languages',fw:'Frameworks',
+  sec:'Security & Scanning',reg:'Artifact Registries',api:'API & Protocols',
+};
+
+// Build sidebar
+(function(){
+  const panel=document.getElementById('toolSections');
+  const byGroup={};
+  Object.entries(TOOLS).forEach(([k,v])=>{if(!byGroup[v.g])byGroup[v.g]=[];byGroup[v.g].push([k,v]);});
+  let html='';
+  Object.entries(GROUPS).forEach(([g,label])=>{
+    if(!byGroup[g]) return;
+    html+=`<div class="sec">${label}</div><div class="stk">`;
+    byGroup[g].forEach(([k,v])=>{
+      // Use simpleicons CDN - they return proper SVG
+      const logoUrl=`https://cdn.simpleicons.org/${v.ic}/${v.ic2}`;
+      html+=`<button class="ibtn" onclick="addTool('${k}')"><div class="li"><img src="${logoUrl}" width="18" height="18" loading="lazy" onerror="this.style.display='none';this.nextSibling&&(this.nextSibling.style.display='block')" alt=""><span style="display:none;font-size:14px;color:#${v.ic2}">&#9632;</span></div><span>${v.n}</span></button>`;
+    });
+    html+='</div>';
+  });
+  panel.innerHTML=html;
+})();
+
+// ── Diagram Engine ──────────────────────────────────────────────────────────
+const NS='http://www.w3.org/2000/svg';
+const stage=document.getElementById('stage');
+const imageInput=document.getElementById('imageInput');
+const jsonInput=document.getElementById('jsonInput');
+const SK='hypernexa-sre-v6';
+
+let elements=[], selectedId=null, showGrid=true, scale=1;
+let dragging=null, history=[], future=[], clipboard=null;
+let connectMode=false, connectSrc=null, resizing=null;
+// Port-drag system
+let portDragging=null; // {fromId, fromPortX, fromPortY, curX, curY, hoverId}
+let hoveredId=null;    // shape being hovered (for port display)
+let panning=false, panStart=null, panScroll=null;
+
+const uid=()=>Math.random().toString(36).slice(2,10);
+const cl=x=>JSON.parse(JSON.stringify(x));
+const pushH=()=>{history.push(cl(elements));history=history.slice(-80);future=[];};
+const commit=n=>{pushH();elements=n;save();render();};
+const save=()=>{try{localStorage.setItem(SK,JSON.stringify(elements));}catch(e){}};
+
+function load(){
+  try{elements=JSON.parse(localStorage.getItem(SK))||starter();}
+  catch{elements=starter();}
+  render();
 }
 
 function starter(){
   return [
-    {id:uid(),type:"text",x:420,y:70,w:650,h:70,text:"DevOps & SRE Architecture Map",fontSize:46,fill:"#f8fafc",stroke:"transparent"},
-    ...node("Users","user",140,260,"#38bdf8","#bae6fd"),
-    ...node("CDN / Edge","cloud",400,260,"#60a5fa","#bfdbfe"),
-    ...node("App Service","server",660,260,"#a78bfa","#ddd6fe"),
-    ...node("Database","database",920,260,"#34d399","#bbf7d0"),
-    ...node("Observability","monitor",660,500,"#facc15","#fef08a"),
-    connectedArrow(null,null,300,325,400,325),
-    connectedArrow(null,null,560,325,660,325),
-    connectedArrow(null,null,820,325,920,325),
-    connectedArrow(null,null,740,385,740,500)
+    {id:uid(),type:'text',x:550,y:55,w:700,h:66,text:'DevOps & SRE Architecture',fontSize:42,fill:'#f1f5f9',stroke:'transparent'},
+    ...tNode('docker',100,230),...tNode('kubernetes',330,230),...tNode('github_actions',560,230),
+    ...tNode('prometheus',790,230),...tNode('grafana',1020,230),...tNode('terraform',560,430),
+    cArr(null,null,218,310,330,310),cArr(null,null,448,310,560,310),
+    cArr(null,null,678,310,790,310),cArr(null,null,908,310,1020,310),
+    cArr(null,null,678,310,678,430),
   ];
 }
 
-function node(label,iconType,x,y,fill,stroke){
-  return [{id:uid(),type:"icon",iconType,x,y,w:160,h:125,text:label,fontSize:20,fill,stroke,bg:"#0f172a",radius:24}];
+function tNode(key,x,y){
+  const m=TOOLS[key]||{n:key,bg:'#0f172a',s:'#38bdf8',f:'#38bdf8',ic:'',ic2:'38bdf8'};
+  return [{id:uid(),type:'tool',key,x,y,w:165,h:130,text:m.n,fs:13,fill:m.f,stroke:m.s,bg:m.bg,
+           logo:`https://cdn.simpleicons.org/${m.ic}/${m.ic2}`,rx:20}];
 }
-function connectedArrow(from,to,x1,y1,x2,y2){ return {id:uid(),type:"arrow",from:from||null,to:to||null,x1,y1,x2,y2,stroke:"#e2e8f0",width:4}; }
-function arrow(x1,y1,x2,y2){ return connectedArrow(null,null,x1,y1,x2,y2); }
+function cArr(from,to,x1,y1,x2,y2){return{id:uid(),type:'arrow',from:from||null,to:to||null,x1,y1,x2,y2,stroke:'#475569',lw:3};}
+function fArr(x1,y1,x2,y2){return cArr(null,null,x1,y1,x2,y2);}
 
-function center(item){
-  if(!item || item.type === "arrow") return null;
-  return {x:(item.x||0)+(item.w||0)/2, y:(item.y||0)+(item.h||0)/2};
-}
+const cx=i=>(i.x||0)+(i.w||0)/2;
+const cy=i=>(i.y||0)+(i.h||0)/2;
 
-function edgePoint(fromItem, toItem){
-  if(!fromItem || !toItem || fromItem.type === "arrow" || toItem.type === "arrow") {
-    return fromItem ? center(fromItem) : null;
-  }
-
-  const c1 = center(fromItem);
-  const c2 = center(toItem);
-  const dx = c2.x - c1.x;
-  const dy = c2.y - c1.y;
-  const w = Math.max(1, (fromItem.w || 1) / 2);
-  const h = Math.max(1, (fromItem.h || 1) / 2);
-
-  if (Math.abs(dx) / w > Math.abs(dy) / h) {
-    return {
-      x: c1.x + (dx > 0 ? w : -w),
-      y: c1.y + dy * (w / Math.max(1, Math.abs(dx)))
-    };
-  }
-
-  return {
-    x: c1.x + dx * (h / Math.max(1, Math.abs(dy))),
-    y: c1.y + (dy > 0 ? h : -h)
-  };
+function edgePt(a,b){
+  if(!a||!b||a.type==='arrow'||b.type==='arrow') return a?{x:cx(a),y:cy(a)}:null;
+  const acx=cx(a),acy=cy(a),bcx=cx(b),bcy=cy(b);
+  const dx=bcx-acx,dy=bcy-acy;
+  const hw=Math.max(1,(a.w||1)/2),hh=Math.max(1,(a.h||1)/2);
+  if(Math.abs(dx)/hw>Math.abs(dy)/hh) return{x:acx+(dx>0?hw:-hw),y:acy+dy*(hw/Math.max(1,Math.abs(dx)))};
+  return{x:acx+dx*(hh/Math.max(1,Math.abs(dy))),y:acy+(dy>0?hh:-hh)};
 }
 
-function getArrowPoints(item){
-  const fromItem = item.from ? elements.find(e=>e.id===item.from) : null;
-  const toItem = item.to ? elements.find(e=>e.id===item.to) : null;
-
-  if(fromItem && toItem){
-    const start = edgePoint(fromItem, toItem);
-    const end = edgePoint(toItem, fromItem);
-    return {x1:start.x, y1:start.y, x2:end.x, y2:end.y};
-  }
-
-  const from = fromItem ? center(fromItem) : null;
-  const to = toItem ? center(toItem) : null;
-  return {x1:from?from.x:item.x1, y1:from?from.y:item.y1, x2:to?to.x:item.x2, y2:to?to.y:item.y2};
+function arrowPts(it){
+  const fi=it.from?elements.find(e=>e.id===it.from):null;
+  const ti=it.to?elements.find(e=>e.id===it.to):null;
+  if(fi&&ti){const s=edgePt(fi,ti),e2=edgePt(ti,fi);return{x1:s.x,y1:s.y,x2:e2.x,y2:e2.y};}
+  return{x1:fi?cx(fi):it.x1,y1:fi?cy(fi):it.y1,x2:ti?cx(ti):it.x2,y2:ti?cy(ti):it.y2};
 }
 
-function connectorHandlePoint(item){
-  return {x:(item.x||0)+(item.w||0)+14, y:(item.y||0)+(item.h||0)/2};
+// Port positions: 4 sides + 4 corners = 8 ports per shape
+function shapePorts(it){
+  if(!it||it.type==='arrow'||it.type==='text') return [];
+  const {x,y,w,h}=it;
+  const mx=x+w/2,my=y+h/2;
+  return [
+    {x:mx,   y:y,    id:'n'},  // top
+    {x:mx,   y:y+h,  id:'s'},  // bottom
+    {x:x,    y:my,   id:'w'},  // left
+    {x:x+w,  y:my,   id:'e'},  // right
+    {x:x,    y:y,    id:'nw'}, // top-left
+    {x:x+w,  y:y,    id:'ne'}, // top-right
+    {x:x,    y:y+h,  id:'sw'}, // bottom-left
+    {x:x+w,  y:y+h,  id:'se'}, // bottom-right
+  ];
 }
 
-function resizeHandlePoint(item){
-  return {x:(item.x||0)+(item.w||0), y:(item.y||0)+(item.h||0)};
+// Find closest port on shape to a given point
+function closestPort(shape, px, py){
+  const ports=shapePorts(shape);
+  if(!ports.length) return null;
+  let best=null,bestD=Infinity;
+  ports.forEach(p=>{
+    const d=Math.hypot(p.x-px,p.y-py);
+    if(d<bestD){bestD=d;best=p;}
+  });
+  return {port:best,dist:bestD};
 }
 
-function isResizable(item){
-  return item && item.type !== "arrow" && item.type !== "text";
-}
+const mk=(n,a={})=>{const e=document.createElementNS(NS,n);Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));return e;};
 
-function findShapeAtClientPoint(clientX, clientY, excludeId=null){
-  let el = document.elementFromPoint(clientX, clientY);
-  while(el){
-    const id = el.getAttribute && el.getAttribute("data-id");
-    if(id){
-      const item = elements.find(x=>x.id===id);
-      if(item && item.type !== "arrow" && item.id !== excludeId) return item;
-    }
-    el = el.parentNode;
-  }
-  return null;
-}
-
-function startResize(item, ev){
-  ev.stopPropagation();
-  selectedId = item.id;
-  resizing = {id:item.id, start:point(ev), original:clone(item)};
-  render();
-}
-
-function startConnectorDrag(item, ev){
-  ev.stopPropagation();
-  selectedId = item.id;
-  const start = connectorHandlePoint(item);
-  tempConnector = {fromId:item.id, x1:start.x, y1:start.y, x2:start.x, y2:start.y, hoverTargetId:null};
-  render();
-}
-
-function make(name,attrs={}){
-  const e = document.createElementNS(SVG,name);
-  Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
-  return e;
-}
 function bgDefs(){
-  const defs = make("defs");
-  const grid = make("pattern",{id:"grid",width:"32",height:"32",patternUnits:"userSpaceOnUse"});
-  grid.appendChild(make("path",{d:"M 32 0 L 0 0 0 32",fill:"none",stroke:"rgba(148,163,184,.18)","stroke-width":"1"}));
-  const grad = make("radialGradient",{id:"bg",cx:"50%",cy:"0%",r:"90%"});
-  grad.appendChild(make("stop",{offset:"0%","stop-color":"#172554"}));
-  grad.appendChild(make("stop",{offset:"55%","stop-color":"#0f172a"}));
-  grad.appendChild(make("stop",{offset:"100%","stop-color":"#020617"}));
-  defs.append(grid,grad);
-  return defs;
+  const d=mk('defs');
+  const g=mk('pattern',{id:'grid',width:'40',height:'40',patternUnits:'userSpaceOnUse'});
+  g.appendChild(mk('path',{d:'M 40 0 L 0 0 0 40',fill:'none',stroke:'rgba(148,163,184,.09)','stroke-width':'1'}));
+  const gr=mk('radialGradient',{id:'bgr',cx:'50%',cy:'0%',r:'90%'});
+  gr.appendChild(mk('stop',{offset:'0%','stop-color':'#0d1f4a'}));
+  gr.appendChild(mk('stop',{offset:'55%','stop-color':'#060f1e'}));
+  gr.appendChild(mk('stop',{offset:'100%','stop-color':'#020617'}));
+  // arrowhead markers
+  function mkMarker(id,color){
+    const m=mk('marker',{id,markerWidth:'10',markerHeight:'7',refX:'9',refY:'3.5',orient:'auto'});
+    m.appendChild(mk('polygon',{points:'0 0, 10 3.5, 0 7',fill:color}));
+    return m;
+  }
+  d.append(g,gr,mkMarker('ah','#475569'),mkMarker('ah_cyan','#22d3ee'),mkMarker('ah_yellow','#facc15'));
+  return d;
 }
 
 function render(){
-  stage.innerHTML = "";
+  stage.innerHTML='';
   stage.appendChild(bgDefs());
-  stage.appendChild(make("rect",{width:"1440",height:"820",fill:"url(#bg)"}));
-  if(showGrid) stage.appendChild(make("rect",{width:"1440",height:"820",fill:"url(#grid)"}));
+  stage.appendChild(mk('rect',{width:'1700',height:'960',fill:'url(#bgr)'}));
+  if(showGrid) stage.appendChild(mk('rect',{width:'1700',height:'960',fill:'url(#grid)'}));
 
-  elements.filter(e=>e.type==="arrow").forEach(draw);
-  if(tempConnector){
-    const c = make("g");
-    c.appendChild(make("line",{x1:tempConnector.x1,y1:tempConnector.y1,x2:tempConnector.x2,y2:tempConnector.y2,stroke:"#22d3ee","stroke-width":3,"stroke-dasharray":"8 6","stroke-linecap":"round"}));
-    c.appendChild(make("circle",{cx:tempConnector.x1,cy:tempConnector.y1,r:5,fill:"#22d3ee"}));
-    c.appendChild(make("circle",{cx:tempConnector.x2,cy:tempConnector.y2,r:5,fill:tempConnector.hoverTargetId ? "#facc15" : "#22d3ee"}));
-    stage.appendChild(c);
+  // Draw arrows first (below shapes)
+  elements.filter(e=>e.type==='arrow').forEach(drawEl);
+
+  // Port-drag preview line
+  if(portDragging){
+    const g=mk('g');
+    const {fromPortX:fpx,fromPortY:fpy,curX,curY,hoverId}=portDragging;
+    const col=hoverId?'#22d3ee':'#facc15';
+    g.appendChild(mk('line',{x1:fpx,y1:fpy,x2:curX,y2:curY,stroke:col,'stroke-width':'2.5','stroke-dasharray':'8 5','stroke-linecap':'round','marker-end':`url(#ah_${hoverId?'cyan':'yellow'})`}));
+    g.appendChild(mk('circle',{cx:fpx,cy:fpy,r:'5',fill:col}));
+    stage.appendChild(g);
   }
-  elements.filter(e=>e.type!=="arrow").forEach(draw);
+
+  // Draw shapes
+  elements.filter(e=>e.type!=='arrow').forEach(drawEl);
+
+  // Draw port dots on hovered shape (but not while port-dragging from it)
+  if(hoveredId && (!portDragging || portDragging.fromId!==hoveredId)){
+    const hov=elements.find(e=>e.id===hoveredId);
+    if(hov && hov.type!=='arrow' && hov.type!=='text'){
+      drawPortDots(hov);
+    }
+  }
 
   renderInspector();
-  updateConnectUI();
+  updateConnUI();
 }
 
-function draw(item){
-  const g = make("g",{"data-id":item.id,cursor:connectMode && item.type !== "arrow" ? "crosshair" : "move"});
-  g.addEventListener("pointerdown",e=>startInteraction(e,item.id));
-  const active = item.id===selectedId;
+function drawPortDots(it){
+  const ports=shapePorts(it);
+  ports.forEach(p=>{
+    const c=mk('circle',{cx:p.x,cy:p.y,r:'6',fill:'rgba(34,211,238,.85)',stroke:'#cffafe','stroke-width':'1.5',cursor:'crosshair','data-port-id':it.id,'data-port-x':p.x,'data-port-y':p.y});
+    c.addEventListener('pointerdown',ev=>{
+      ev.stopPropagation();
+      portDragging={fromId:it.id,fromPortX:p.x,fromPortY:p.y,curX:p.x,curY:p.y,hoverId:null};
+      stage.setPointerCapture(ev.pointerId);
+      render();
+    });
+    stage.appendChild(c);
+  });
+}
 
-  if(item.type==="arrow"){
-    const p = getArrowPoints(item);
-    g.appendChild(make("line",{x1:p.x1,y1:p.y1,x2:p.x2,y2:p.y2,stroke:item.stroke||"#e2e8f0","stroke-width":item.width||4,"stroke-linecap":"round"}));
-    if(item.from || item.to){
-      g.appendChild(make("circle",{cx:p.x1,cy:p.y1,r:5,fill:item.stroke||"#e2e8f0"}));
-      g.appendChild(make("circle",{cx:p.x2,cy:p.y2,r:5,fill:item.stroke||"#e2e8f0"}));
+function drawEl(it){
+  const g=mk('g',{'data-id':it.id});
+  g.style.cursor=connectMode&&it.type!=='arrow'?'crosshair':'move';
+  g.addEventListener('pointerdown',e=>interact(e,it.id));
+  const sel=it.id===selectedId;
+
+  // ARROW
+  if(it.type==='arrow'){
+    const p=arrowPts(it);
+    g.appendChild(mk('line',{x1:p.x1,y1:p.y1,x2:p.x2,y2:p.y2,
+      stroke:it.stroke||'#475569','stroke-width':it.lw||3,'stroke-linecap':'round','marker-end':'url(#ah)'}));
+    if(it.from||it.to) g.appendChild(mk('circle',{cx:p.x1,cy:p.y1,r:'4',fill:it.stroke||'#475569'}));
+    if(sel) g.appendChild(mk('rect',{x:Math.min(p.x1,p.x2)-10,y:Math.min(p.y1,p.y2)-10,
+      width:Math.abs(p.x2-p.x1)+20,height:Math.abs(p.y2-p.y1)+20,
+      fill:'none',stroke:'#22d3ee','stroke-dasharray':'5 4','stroke-width':'1.5'}));
+    // wider hit area
+    g.appendChild(mk('line',{x1:p.x1,y1:p.y1,x2:p.x2,y2:p.y2,stroke:'transparent','stroke-width':'16','stroke-linecap':'round'}));
+    stage.appendChild(g);return;
+  }
+
+  // TEXT
+  if(it.type==='text'){
+    const t=mk('text',{x:it.x,y:it.y+it.h/2,fill:it.fill||'#f1f5f9','font-size':it.fontSize||32,
+      'font-family':'JetBrains Mono,monospace','dominant-baseline':'middle','font-weight':'800'});
+    t.textContent=it.text||'Text';g.appendChild(t);
+    if(sel) g.appendChild(selBox(it));
+    stage.appendChild(g);return;
+  }
+
+  // IMAGE
+  if(it.type==='image'){
+    g.appendChild(mk('image',{href:it.src,x:it.x,y:it.y,width:it.w,height:it.h,preserveAspectRatio:'xMidYMid slice'}));
+    if(sel) g.appendChild(selBox(it));
+    stage.appendChild(g);return;
+  }
+
+  // SWIMLANE
+  if(it.type==='swimlane'){
+    g.appendChild(mk('rect',{x:it.x,y:it.y,width:it.w,height:it.h,rx:12,fill:it.bg||'rgba(6,15,30,.6)',
+      stroke:it.stroke||'#334155','stroke-width':'1.5','stroke-dasharray':'10 6'}));
+    const tt=mk('text',{x:it.x+14,y:it.y+26,fill:it.fill||'#94a3b8','font-size':13,
+      'font-family':'JetBrains Mono,monospace','font-weight':'900'});
+    tt.textContent=it.text||'Lane';g.appendChild(tt);
+    if(sel) g.appendChild(selBox(it));
+    addResizeHandle(g,it);
+    stage.appendChild(g);return;
+  }
+
+  if(it.type==='box'||it.type==='note')
+    g.appendChild(mk('rect',{x:it.x,y:it.y,width:it.w,height:it.h,rx:it.rx||10,
+      fill:it.bg||'#0f172a',stroke:it.stroke||'#38bdf8','stroke-width':it.bw||2}));
+  if(it.type==='circle')
+    g.appendChild(mk('ellipse',{cx:cx(it),cy:cy(it),rx:it.w/2,ry:it.h/2,
+      fill:it.bg||'#0f172a',stroke:it.stroke||'#38bdf8','stroke-width':it.bw||2}));
+  if(it.type==='diamond')
+    g.appendChild(mk('polygon',{points:`${cx(it)},${it.y} ${it.x+it.w},${cy(it)} ${cx(it)},${it.y+it.h} ${it.x},${cy(it)}`,
+      fill:it.bg||'#0f172a',stroke:it.stroke||'#f59e0b','stroke-width':it.bw||2}));
+
+  if(it.type==='tool'){
+    // card bg
+    g.appendChild(mk('rect',{x:it.x,y:it.y,width:it.w,height:it.h,rx:it.rx||20,
+      fill:it.bg||'#0f172a',stroke:it.stroke||'#38bdf8','stroke-width':'2'}));
+    // inner glow ring
+    g.appendChild(mk('rect',{x:it.x+1,y:it.y+1,width:it.w-2,height:it.h-2,rx:(it.rx||20)-1,
+      fill:'none',stroke:it.fill||'#38bdf8','stroke-width':'0.6','opacity':'0.35'}));
+    // logo image
+    if(it.logo){
+      const ls=48,lx=cx(it)-ls/2,ly=it.y+18;
+      const img=mk('image',{href:it.logo,x:lx,y:ly,width:ls,height:ls,'preserveAspectRatio':'xMidYMid meet'});
+      img.setAttribute('crossorigin','anonymous');
+      g.appendChild(img);
     }
-    const a=Math.atan2(p.y2-p.y1,p.x2-p.x1);
-    const ax=p.x2-Math.cos(a)*12, ay=p.y2-Math.sin(a)*12;
-    const pts=`${p.x2},${p.y2} ${ax-Math.sin(a)*8},${ay+Math.cos(a)*8} ${ax+Math.sin(a)*8},${ay-Math.cos(a)*8}`;
-    g.appendChild(make("polygon",{points:pts,fill:item.stroke||"#e2e8f0"}));
-    if(active) g.appendChild(make("rect",{x:Math.min(p.x1,p.x2)-12,y:Math.min(p.y1,p.y2)-12,width:Math.abs(p.x2-p.x1)+24,height:Math.abs(p.y2-p.y1)+24,fill:"none",stroke:"#22d3ee","stroke-dasharray":"6 6"}));
-    stage.appendChild(g); return;
+    const lb=mk('text',{x:cx(it),y:it.y+it.h-14,'text-anchor':'middle',
+      fill:'#e2e8f0','font-size':it.fs||13,'font-family':'JetBrains Mono,monospace',
+      'font-weight':'700','dominant-baseline':'middle'});
+    lb.textContent=it.text||'';g.appendChild(lb);
+  } else if(!['text','image','swimlane','arrow'].includes(it.type)){
+    const lb=mk('text',{x:cx(it),y:cy(it),'text-anchor':'middle',
+      fill:it.labelColor||'#f1f5f9','font-size':it.fontSize||15,'font-family':'JetBrains Mono,monospace',
+      'font-weight':'700','dominant-baseline':'middle'});
+    lb.textContent=it.text||'';g.appendChild(lb);
   }
 
-  if(item.type==="text"){
-    const t=make("text",{x:item.x,y:item.y+item.h/2,fill:item.fill||"#f8fafc","font-size":item.fontSize||32,"font-family":"Inter, Arial","dominant-baseline":"middle"});
-    t.textContent=item.text||"Text"; g.appendChild(t);
-    if(active) g.appendChild(sel(item));
-    stage.appendChild(g); return;
+  if(sel){
+    g.appendChild(selBox(it));
+    addResizeHandle(g,it);
   }
 
-  if(item.type==="image"){
-    g.appendChild(make("image",{href:item.src,x:item.x,y:item.y,width:item.w,height:item.h,preserveAspectRatio:"xMidYMid slice"}));
-    if(active) g.appendChild(sel(item));
-    stage.appendChild(g); return;
-  }
+  if(connectSrc===it.id) g.appendChild(mk('rect',{x:it.x-10,y:it.y-10,width:it.w+20,height:it.h+20,
+    fill:'none',stroke:'#facc15','stroke-width':'2','stroke-dasharray':'10 5'}));
+  if(portDragging&&portDragging.hoverId===it.id) g.appendChild(mk('rect',{x:it.x-12,y:it.y-12,
+    width:it.w+24,height:it.h+24,fill:'none',stroke:'#22d3ee','stroke-width':'2','stroke-dasharray':'5 4'}));
 
-  if(item.type==="swimlane"){
-    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:16,fill:item.bg||"rgba(15,23,42,.45)",stroke:item.stroke||"#334155","stroke-width":2,"stroke-dasharray":"8 8"}));
-    const title=make("text",{x:item.x+18,y:item.y+30,fill:item.fill||"#cbd5e1","font-size":18,"font-family":"Inter, Arial","font-weight":"800"});
-    title.textContent=item.text||"Lane"; g.appendChild(title);
-    if(active) g.appendChild(sel(item));
-    stage.appendChild(g); return;
-  }
-
-  if(item.type==="box" || item.type==="note"){
-    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:item.radius||18,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#38bdf8","stroke-width":item.width||3}));
-  }
-  if(item.type==="circle"){
-    g.appendChild(make("ellipse",{cx:item.x+item.w/2,cy:item.y+item.h/2,rx:item.w/2,ry:item.h/2,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#38bdf8","stroke-width":item.width||3}));
-  }
-  if(item.type==="diamond"){
-    g.appendChild(make("polygon",{points:`${item.x+item.w/2},${item.y} ${item.x+item.w},${item.y+item.h/2} ${item.x+item.w/2},${item.y+item.h} ${item.x},${item.y+item.h/2}`,fill:item.bg||item.fill||"#1e293b",stroke:item.stroke||"#f59e0b","stroke-width":item.width||3}));
-  }
-  if(item.type==="icon"){
-    g.appendChild(make("rect",{x:item.x,y:item.y,width:item.w,height:item.h,rx:item.radius||24,fill:item.bg||"#0f172a",stroke:item.stroke||"#38bdf8","stroke-width":3}));
-    drawIconSymbol(g, item.iconType || iconTypeFromOld(item.icon,item.text), item.x + item.w/2, item.y + 45, item.fill || "#38bdf8");
-  }
-
-  const label=make("text",{x:item.x+item.w/2,y:item.type==="icon"?item.y+item.h-24:item.y+item.h/2,"text-anchor":"middle",fill:item.labelColor||"#f8fafc","font-size":item.fontSize||18,"font-family":"Inter, Arial","font-weight":"800","dominant-baseline":"middle"});
-  label.textContent=item.text||"";
-  g.appendChild(label);
-  if(active) {
-    g.appendChild(sel(item));
-    if(item.type !== "text"){
-      const cp = connectorHandlePoint(item);
-      const rp = resizeHandlePoint(item);
-      const cHandle = make("circle",{cx:cp.x,cy:cp.y,r:9,fill:"#22d3ee",stroke:"#cffafe","stroke-width":2,cursor:"crosshair"});
-      cHandle.addEventListener("pointerdown",ev=>startConnectorDrag(item,ev));
-      g.appendChild(cHandle);
-    }
-    if(isResizable(item)){
-      const rp = resizeHandlePoint(item);
-      const rHandle = make("rect",{x:rp.x-8,y:rp.y-8,width:16,height:16,rx:4,fill:"#f8fafc",stroke:"#22d3ee","stroke-width":2,cursor:"nwse-resize"});
-      rHandle.addEventListener("pointerdown",ev=>startResize(item,ev));
-      g.appendChild(rHandle);
-    }
-  }
-  if(connectSourceId === item.id) g.appendChild(make("rect",{x:item.x-11,y:item.y-11,width:item.w+22,height:item.h+22,fill:"none",stroke:"#facc15","stroke-width":3,"stroke-dasharray":"10 5"}));
-  if(tempConnector && tempConnector.hoverTargetId === item.id) g.appendChild(make("rect",{x:item.x-14,y:item.y-14,width:item.w+28,height:item.h+28,fill:"none",stroke:"#22d3ee","stroke-width":2,"stroke-dasharray":"5 5"}));
   stage.appendChild(g);
 }
 
-function drawIconSymbol(g, type, cx, cy, color){
-  const stroke = color;
-  const fill = "none";
-  if(type==="database"){
-    g.appendChild(make("ellipse",{cx,cy:cy-17,rx:25,ry:10,fill:"rgba(52,211,153,.18)",stroke,"stroke-width":4}));
-    g.appendChild(make("path",{d:`M ${cx-25} ${cy-17} V ${cy+18} C ${cx-25} ${cy+31}, ${cx+25} ${cy+31}, ${cx+25} ${cy+18} V ${cy-17}`,fill:"rgba(52,211,153,.10)",stroke,"stroke-width":4}));
-    g.appendChild(make("ellipse",{cx,cy:cy+18,rx:25,ry:10,fill:"none",stroke,"stroke-width":4}));
-    return;
-  }
-  if(type==="server"){
-    [-20,0,20].forEach((dy)=>{
-      g.appendChild(make("rect",{x:cx-30,y:cy+dy-9,width:60,height:16,rx:4,fill:"rgba(167,139,250,.12)",stroke,"stroke-width":3}));
-      g.appendChild(make("circle",{cx:cx+20,cy:cy+dy-1,r:2.5,fill:stroke}));
-    });
-    return;
-  }
-  if(type==="cloud"){
-    g.appendChild(make("path",{d:`M ${cx-32} ${cy+10} C ${cx-42} ${cy+7}, ${cx-42} ${cy-10}, ${cx-28} ${cy-11} C ${cx-24} ${cy-28}, ${cx-2} ${cy-30}, ${cx+5} ${cy-15} C ${cx+23} ${cy-20}, ${cx+35} ${cy-5}, ${cx+28} ${cy+10} Z`,fill:"rgba(56,189,248,.14)",stroke,"stroke-width":4,"stroke-linejoin":"round"}));
-    return;
-  }
-  if(type==="shield"){
-    g.appendChild(make("path",{d:`M ${cx} ${cy-32} L ${cx+28} ${cy-20} V ${cy+2} C ${cx+28} ${cy+20}, ${cx+12} ${cy+30}, ${cx} ${cy+36} C ${cx-12} ${cy+30}, ${cx-28} ${cy+20}, ${cx-28} ${cy+2} V ${cy-20} Z`,fill:"rgba(249,115,22,.13)",stroke,"stroke-width":4,"stroke-linejoin":"round"}));
-    g.appendChild(make("path",{d:`M ${cx-12} ${cy+2} L ${cx-2} ${cy+12} L ${cx+15} ${cy-12}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round","stroke-linejoin":"round"}));
-    return;
-  }
-  if(type==="network"){
-    const pts=[[cx,cy-28],[cx-30,cy+18],[cx+30,cy+18]];
-    pts.forEach(([x,y])=>g.appendChild(make("circle",{cx:x,cy:y,r:10,fill:"rgba(96,165,250,.15)",stroke,"stroke-width":4})));
-    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx-22,y2:cy+10,stroke,"stroke-width":3}));
-    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx+22,y2:cy+10,stroke,"stroke-width":3}));
-    g.appendChild(make("line",{x1:cx-20,y1:cy+18,x2:cx+20,y2:cy+18,stroke,"stroke-width":3}));
-    return;
-  }
-  if(type==="git"){
-    [[cx-25,cy-22],[cx,cy],[cx+25,cy+22]].forEach(([x,y])=>g.appendChild(make("circle",{cx:x,cy:y,r:8,fill:"rgba(251,113,133,.18)",stroke,"stroke-width":4})));
-    g.appendChild(make("path",{d:`M ${cx-18} ${cy-16} L ${cx-6} ${cy-5} M ${cx+7} ${cy+6} L ${cx+18} ${cy+17} M ${cx} ${cy-25} V ${cy+25}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    return;
-  }
-  if(type==="monitor"){
-    g.appendChild(make("rect",{x:cx-32,y:cy-25,width:64,height:42,rx:6,fill:"rgba(250,204,21,.10)",stroke,"stroke-width":4}));
-    g.appendChild(make("path",{d:`M ${cx-12} ${cy+27} H ${cx+12} M ${cx} ${cy+17} V ${cy+27}`,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    g.appendChild(make("path",{d:`M ${cx-22} ${cy-3} L ${cx-8} ${cy-3} L ${cx} ${cy-14} L ${cx+10} ${cy+8} L ${cx+23} ${cy+8}`,fill:"none",stroke,"stroke-width":3,"stroke-linecap":"round","stroke-linejoin":"round"}));
-    return;
-  }
-  if(type==="queue"){
-    [-18,0,18].forEach((dy)=>g.appendChild(make("rect",{x:cx-30,y:cy+dy-8,width:60,height:14,rx:3,fill:"rgba(45,212,191,.12)",stroke,"stroke-width":3})));
-    return;
-  }
-  if(type==="k8s"){
-    g.appendChild(make("polygon",{points:`${cx},${cy-34} ${cx+29},${cy-17} ${cx+29},${cy+17} ${cx},${cy+34} ${cx-29},${cy+17} ${cx-29},${cy-17}`,fill:"rgba(56,189,248,.12)",stroke,"stroke-width":4}));
-    g.appendChild(make("circle",{cx,cy,r:14,fill:"none",stroke,"stroke-width":4}));
-    for(let i=0;i<6;i++){ const a=i*Math.PI/3; g.appendChild(make("line",{x1:cx+Math.cos(a)*14,y1:cy+Math.sin(a)*14,x2:cx+Math.cos(a)*26,y2:cy+Math.sin(a)*26,stroke,"stroke-width":3})); }
-    return;
-  }
-  if(type==="firewall"){
-    for(let r=0;r<3;r++) for(let c=0;c<3;c++) g.appendChild(make("rect",{x:cx-33+c*22+(r%2?11:0),y:cy-25+r*18,width:20,height:15,rx:2,fill:"rgba(239,68,68,.12)",stroke,"stroke-width":2}));
-    return;
-  }
-  if(type==="user"){
-    g.appendChild(make("circle",{cx,cy:cy-15,r:15,fill:"rgba(56,189,248,.14)",stroke,"stroke-width":4}));
-    g.appendChild(make("path",{d:`M ${cx-30} ${cy+35} C ${cx-22} ${cy+8}, ${cx+22} ${cy+8}, ${cx+30} ${cy+35}`,fill:"none",stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    return;
-  }
-  if(type==="linux"){
-    g.appendChild(make("ellipse",{cx,cy:cy-2,rx:18,ry:26,fill:"rgba(234,179,8,.14)",stroke,"stroke-width":4}));
-    g.appendChild(make("circle",{cx,cy:cy-16,r:10,fill:"rgba(234,179,8,.14)",stroke,"stroke-width":4}));
-    g.appendChild(make("line",{x1:cx-10,y1:cy+26,x2:cx-18,y2:cy+34,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    g.appendChild(make("line",{x1:cx+10,y1:cy+26,x2:cx+18,y2:cy+34,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    return;
-  }
-  if(type==="lxc"){
-    for(const [dx,dy] of [[-14,-14],[14,-14],[-14,14],[14,14]]){
-      g.appendChild(make("rect",{x:cx+dx-12,y:cy+dy-12,width:24,height:24,rx:4,fill:"rgba(34,197,94,.12)",stroke,"stroke-width":3}));
-    }
-    g.appendChild(make("line",{x1:cx-2,y1:cy-2,x2:cx+2,y2:cy+2,stroke,"stroke-width":3}));
-    return;
-  }
-  if(type==="docker"){
-    const basey = cy+10;
-    for(let r=0;r<2;r++) for(let c=0;c<3;c++) g.appendChild(make("rect",{x:cx-28+c*18,y:basey-18+r*16,width:14,height:12,rx:2,fill:"rgba(56,189,248,.12)",stroke,"stroke-width":2}));
-    g.appendChild(make("path",{d:`M ${cx+4} ${basey+5} C ${cx+18} ${basey+5}, ${cx+22} ${basey-4}, ${cx+30} ${basey-4}`,fill:"none",stroke,"stroke-width":3,"stroke-linecap":"round"}));
-    return;
-  }
-  if(type==="nginx"){
-    g.appendChild(make("polygon",{points:`${cx},${cy-34} ${cx+30},${cy-17} ${cx+30},${cy+17} ${cx},${cy+34} ${cx-30},${cy+17} ${cx-30},${cy-17}`,fill:"rgba(34,197,94,.12)",stroke,"stroke-width":4}));
-    g.appendChild(make("text",{x:cx,y:cy+6,"text-anchor":"middle",fill:stroke,"font-size":22,"font-family":"Inter, Arial","font-weight":"900"})).textContent="N";
-    return;
-  }
-  if(type==="prometheus"){
-    g.appendChild(make("circle",{cx,cy,r:24,fill:"rgba(251,146,60,.12)",stroke,"stroke-width":4}));
-    g.appendChild(make("line",{x1:cx,y1:cy,x2:cx+16,y2:cy-14,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    g.appendChild(make("circle",{cx,cy,r:4,fill:stroke}));
-    return;
-  }
-  if(type==="grafana"){
-    g.appendChild(make("path",{d:`M ${cx-28} ${cy+10} C ${cx-28} ${cy-10}, ${cx-10} ${cy-26}, ${cx+10} ${cy-24} C ${cx+26} ${cy-22}, ${cx+34} ${cy-6}, ${cx+30} ${cy+10} C ${cx+24} ${cy+28}, ${cx+6} ${cy+34}, ${cx-12} ${cy+26} Z`,fill:"rgba(249,115,22,.12)",stroke,"stroke-width":4}));
-    g.appendChild(make("circle",{cx:cx+2,cy:cy+2,r:10,fill:"none",stroke,"stroke-width":4}));
-    return;
-  }
-  if(type==="terraform"){
-    g.appendChild(make("polygon",{points:`${cx-26},${cy-18} ${cx-6},${cy-30} ${cx+14},${cy-18} ${cx-6},${cy-6}`,fill:"rgba(167,139,250,.18)",stroke,"stroke-width":3}));
-    g.appendChild(make("polygon",{points:`${cx-26},${cy+8} ${cx-6},${cy-4} ${cx+14},${cy+8} ${cx-6},${cy+20}`,fill:"rgba(167,139,250,.14)",stroke,"stroke-width":3}));
-    g.appendChild(make("polygon",{points:`${cx-2},${cy+26} ${cx+18},${cy+14} ${cx+38},${cy+26} ${cx+18},${cy+38}`,fill:"rgba(167,139,250,.10)",stroke,"stroke-width":3}));
-    return;
-  }
-  if(type==="loadbalancer"){
-    g.appendChild(make("line",{x1:cx-30,y1:cy-18,x2:cx+30,y2:cy-18,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    g.appendChild(make("line",{x1:cx-30,y1:cy+18,x2:cx+30,y2:cy+18,stroke,"stroke-width":4,"stroke-linecap":"round"}));
-    for(let i of [-20,0,20]) g.appendChild(make("circle",{cx:cx+i,cy:cy,r:8,fill:"rgba(96,165,250,.12)",stroke,"stroke-width":3}));
-    g.appendChild(make("line",{x1:cx,y1:cy-18,x2:cx,y2:cy+18,stroke,"stroke-width":3}));
-    return;
-  }
-  g.appendChild(make("rect",{x:cx-24,y:cy-24,width:48,height:48,fill:"rgba(255,255,255,.08)",stroke,"stroke-width":4}));
-}
-
-function sel(item){ return make("rect",{x:item.x-7,y:item.y-7,width:item.w+14,height:item.h+14,fill:"none",stroke:"#22d3ee","stroke-dasharray":"7 7"}); }
-
-function startInteraction(ev,id){
-  ev.stopPropagation();
-  const item=elements.find(e=>e.id===id);
-  if(connectMode && item && item.type !== "arrow"){
-    handleConnectClick(id);
-    return;
-  }
-  selectedId=id;
-  dragging={id,start:point(ev),original:clone(item)};
-  render();
-}
-function handleConnectClick(id){
-  if(!connectSourceId){
-    connectSourceId=id;
-    selectedId=id;
+function addResizeHandle(g,it){
+  if(it.type==='arrow'||it.type==='text') return;
+  const rh=mk('rect',{x:it.x+it.w-6,y:it.y+it.h-6,width:12,height:12,rx:3,
+    fill:'#f8fafc',stroke:'#22d3ee','stroke-width':'2',cursor:'nwse-resize'});
+  rh.addEventListener('pointerdown',ev=>{
+    ev.stopPropagation();
+    selectedId=it.id;
+    resizing={id:it.id,start:pt(ev),orig:cl(it)};
     render();
-    return;
-  }
-  if(connectSourceId === id){
-    connectSourceId=null;
-    render();
-    return;
-  }
-  commit([...elements, {id:uid(),type:"arrow",from:connectSourceId,to:id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}]);
-  connectSourceId=null;
-  selectedId=id;
-  render();
-}
-function point(ev){ const r=stage.getBoundingClientRect(); return {x:(ev.clientX-r.left)/scale,y:(ev.clientY-r.top)/scale}; }
-stage.addEventListener("pointermove",ev=>{
-  const p=point(ev);
-
-  if(tempConnector){
-    tempConnector.x2 = p.x;
-    tempConnector.y2 = p.y;
-    const hover = findShapeAtClientPoint(ev.clientX, ev.clientY, tempConnector.fromId);
-    tempConnector.hoverTargetId = hover ? hover.id : null;
-    render();
-    return;
-  }
-
-  if(resizing){
-    const dx=p.x-resizing.start.x, dy=p.y-resizing.start.y, o=resizing.original;
-    elements=elements.map(e=>{
-      if(e.id!==resizing.id)return e;
-      return {...e,w:Math.max(80,o.w+dx),h:Math.max(60,o.h+dy)};
-    });
-    render();
-    return;
-  }
-
-  if(!dragging)return;
-  const dx=p.x-dragging.start.x,dy=p.y-dragging.start.y,o=dragging.original;
-  elements=elements.map(e=>{
-    if(e.id!==dragging.id)return e;
-    if(e.type==="arrow" && !e.from && !e.to)return {...e,x1:o.x1+dx,y1:o.y1+dy,x2:o.x2+dx,y2:o.y2+dy};
-    if(e.type==="arrow")return e;
-    return {...e,x:o.x+dx,y:o.y+dy};
   });
+  g.appendChild(rh);
+}
+
+const selBox=it=>mk('rect',{x:it.x-6,y:it.y-6,width:it.w+12,height:it.h+12,
+  fill:'none',stroke:'#22d3ee','stroke-dasharray':'6 5','stroke-width':'1.6',rx:'4'});
+
+// ── Interaction ──────────────────────────────────────────────────────────────
+function pt(ev){const r=stage.getBoundingClientRect();return{x:(ev.clientX-r.left)/scale,y:(ev.clientY-r.top)/scale};}
+
+function interact(ev,id){
+  ev.stopPropagation();stage.focus();
+  const it=elements.find(e=>e.id===id);
+  if(connectMode&&it&&it.type!=='arrow'){connClick(id);return;}
+  selectedId=id;hoveredId=null;
+  dragging={id,start:pt(ev),orig:cl(it)};
   render();
-});
-stage.addEventListener("pointerup",ev=>{
-  if(tempConnector){
-    const target = findShapeAtClientPoint(ev.clientX, ev.clientY, tempConnector.fromId);
-    if(target){
-      commit([...elements, {id:uid(),type:"arrow",from:tempConnector.fromId,to:target.id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}]);
-      selectedId = target.id;
-    } else {
-      render();
-    }
-    tempConnector = null;
-    return;
+}
+
+function connClick(id){
+  if(!connectSrc){connectSrc=id;selectedId=id;render();return;}
+  if(connectSrc===id){connectSrc=null;render();return;}
+  commit([...elements,cArr(connectSrc,id,0,0,0,0)]);
+  connectSrc=null;selectedId=id;render();
+}
+
+// Stage pointer events
+stage.addEventListener('pointermove',ev=>{
+  const p=pt(ev);
+
+  // Port drag in progress
+  if(portDragging){
+    portDragging.curX=p.x;portDragging.curY=p.y;
+    // find hovered shape
+    let found=null;
+    elements.forEach(e=>{
+      if(e.type==='arrow'||e.id===portDragging.fromId) return;
+      if(p.x>=e.x&&p.x<=e.x+e.w&&p.y>=e.y&&p.y<=e.y+e.h) found=e.id;
+    });
+    portDragging.hoverId=found;
+    render();return;
   }
-  if(resizing){ save(); resizing=null; return; }
+
+  // Resize
+  if(resizing){
+    const dx=p.x-resizing.start.x,dy=p.y-resizing.start.y,o=resizing.orig;
+    elements=elements.map(e=>e.id!==resizing.id?e:{...e,w:Math.max(80,o.w+dx),h:Math.max(60,o.h+dy)});
+    render();return;
+  }
+
+  // Drag
+  if(dragging){
+    const dx=p.x-dragging.start.x,dy=p.y-dragging.start.y,o=dragging.orig;
+    elements=elements.map(e=>{
+      if(e.id!==dragging.id) return e;
+      if(e.type==='arrow'&&!e.from&&!e.to) return{...e,x1:o.x1+dx,y1:o.y1+dy,x2:o.x2+dx,y2:o.y2+dy};
+      if(e.type==='arrow') return e;
+      return{...e,x:o.x+dx,y:o.y+dy};
+    });
+    render();return;
+  }
+
+  // Hover detection for port display (when idle)
+  let newHov=null;
+  // Check shapes in reverse order (top first)
+  for(let i=elements.length-1;i>=0;i--){
+    const e=elements[i];
+    if(e.type==='arrow'||e.type==='text') continue;
+    if(p.x>=e.x-2&&p.x<=e.x+e.w+2&&p.y>=e.y-2&&p.y<=e.y+e.h+2){newHov=e.id;break;}
+  }
+  if(newHov!==hoveredId){hoveredId=newHov;render();}
+});
+
+stage.addEventListener('pointerup',ev=>{
+  if(portDragging){
+    if(portDragging.hoverId){
+      // Snap to closest port on target
+      const target=elements.find(e=>e.id===portDragging.hoverId);
+      const p=pt(ev);
+      const cp=target?closestPort(target,p.x,p.y):null;
+      const tx=cp?cp.port.x:p.x, ty=cp?cp.port.y:p.y;
+      commit([...elements,{id:uid(),type:'arrow',from:portDragging.fromId,to:portDragging.hoverId,
+        x1:portDragging.fromPortX,y1:portDragging.fromPortY,x2:tx,y2:ty,stroke:'#475569',lw:3}]);
+    }
+    portDragging=null;render();return;
+  }
+  if(resizing){save();resizing=null;return;}
   if(dragging){save();dragging=null;}
 });
-stage.addEventListener("pointerleave",()=>{ if(dragging){save();dragging=null;} if(resizing){save();resizing=null;} });
-stage.addEventListener("pointerdown",()=>{ selectedId=null; connectSourceId=null; render(); });
 
-function add(item){ const n={...item,id:uid()}; commit([...elements,n]); selectedId=n.id; render(); }
-function addText(){ add({type:"text",x:440,y:210,w:360,h:70,text:"New text",fontSize:36,fill:"#f8fafc",stroke:"transparent"}); }
-function addNote(){ add({type:"note",x:420,y:230,w:250,h:120,text:"Runbook note",fontSize:20,bg:"#1e293b",stroke:"#facc15",labelColor:"#f8fafc",radius:18}); }
-function addBox(){ add({type:"box",x:430,y:250,w:190,h:100,text:"Step",fontSize:20,bg:"#1e293b",stroke:"#38bdf8"}); }
-function addCircle(){ add({type:"circle",x:455,y:250,w:145,h:110,text:"Node",fontSize:20,bg:"#1e293b",stroke:"#38bdf8"}); }
-function addDiamond(){ add({type:"diamond",x:440,y:230,w:170,h:140,text:"Decision?",fontSize:20,bg:"#1e293b",stroke:"#f59e0b"}); }
-function addArrow(){ add(arrow(360,340,670,340)); }
-function addSwimlane(){ add({type:"swimlane",x:120,y:160,w:1120,h:210,text:"Production Environment",fontSize:18,bg:"rgba(15,23,42,.35)",stroke:"#475569",fill:"#cbd5e1"}); }
-function addIcon(text,iconType,fill,stroke){ add({type:"icon",iconType,x:430,y:245,w:160,h:125,text,fill,stroke,bg:"#0f172a",fontSize:20}); }
+stage.addEventListener('pointerleave',()=>{
+  if(dragging){save();dragging=null;}
+  if(resizing){save();resizing=null;}
+  hoveredId=null;render();
+});
 
-function templateK8s(){
-  const a=node("Ingress","cloud",120,250,"#38bdf8","#bae6fd"), b=node("Service","network",390,250,"#60a5fa","#bfdbfe"), c=node("Pods","k8s",660,250,"#a78bfa","#ddd6fe"), d=node("Storage","database",930,250,"#34d399","#bbf7d0"), p=node("Policy","shield",660,500,"#f97316","#fed7aa");
-  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Kubernetes Architecture",fontSize:46,fill:"#f8fafc"},...a,...b,...c,...d,...p, conn(a[0],b[0]), conn(b[0],c[0]), conn(c[0],d[0]), conn(c[0],p[0])]);
-}
-function templateIncident(){
-  const alert={id:uid(),type:"box",x:140,y:260,w:190,h:100,text:"Alert",bg:"#1e293b",stroke:"#38bdf8",fontSize:22};
-  const impact={id:uid(),type:"diamond",x:450,y:238,w:170,h:145,text:"Impact?",bg:"#1e293b",stroke:"#f59e0b",fontSize:20};
-  const mitigate={id:uid(),type:"box",x:760,y:260,w:200,h:100,text:"Mitigate",bg:"#1e293b",stroke:"#22c55e",fontSize:22};
-  const post={id:uid(),type:"box",x:1070,y:260,w:220,h:100,text:"Postmortem",bg:"#1e293b",stroke:"#a78bfa",fontSize:22};
-  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Incident Response Flow",fontSize:46,fill:"#f8fafc"}, alert, impact, mitigate, post, conn(alert,impact), conn(impact,mitigate), conn(mitigate,post)]);
-}
-function templateCicd(){
-  const git=node("Git","git",120,275,"#f97316","#fed7aa");
-  const build={id:uid(),type:"box",x:390,y:288,w:190,h:100,text:"Build",bg:"#1e293b",stroke:"#38bdf8",fontSize:22};
-  const test={id:uid(),type:"box",x:690,y:288,w:190,h:100,text:"Test",bg:"#1e293b",stroke:"#22c55e",fontSize:22};
-  const deploy={id:uid(),type:"box",x:990,y:288,w:190,h:100,text:"Deploy",bg:"#1e293b",stroke:"#a78bfa",fontSize:22};
-  commit([{id:uid(),type:"text",x:510,y:65,w:420,h:70,text:"CI/CD Pipeline",fontSize:46,fill:"#f8fafc"},...git,build,test,deploy,conn(git[0],build),conn(build,test),conn(test,deploy)]);
-}
-function templateZeroTrust(){
-  const u=node("User","user",120,260,"#38bdf8","#bae6fd"), i=node("Identity","shield",390,260,"#f97316","#fed7aa"), p=node("Policy","firewall",660,260,"#a78bfa","#ddd6fe"), app=node("Private App","cloud",930,260,"#22c55e","#bbf7d0");
-  commit([{id:uid(),type:"text",x:430,y:65,w:560,h:70,text:"Zero Trust Access Flow",fontSize:46,fill:"#f8fafc"},...u,...i,...p,...app,conn(u[0],i[0]),conn(i[0],p[0]),conn(p[0],app[0])]);
-}
-function templateObservability(){
-  const svc=node("Service","server",180,260,"#a78bfa","#ddd6fe"), m=node("Metrics","monitor",480,180,"#facc15","#fef08a"), l=node("Logs","queue",480,340,"#2dd4bf","#99f6e4"), t=node("Traces","network",780,260,"#38bdf8","#bae6fd"), al=node("Alerting","shield",1080,260,"#fb7185","#fecdd3");
-  commit([{id:uid(),type:"text",x:400,y:65,w:650,h:70,text:"SRE Observability Map",fontSize:46,fill:"#f8fafc"},...svc,...m,...l,...t,...al,conn(svc[0],m[0]),conn(svc[0],l[0]),conn(m[0],t[0]),conn(l[0],t[0]),conn(t[0],al[0])]);
-}
-function conn(a,b){ return {id:uid(),type:"arrow",from:a.id,to:b.id,x1:0,y1:0,x2:0,y2:0,stroke:"#e2e8f0",width:4}; }
+stage.addEventListener('pointerdown',ev=>{
+  if(ev.target===stage){selectedId=null;connectSrc=null;render();}
+});
 
+// Pan
+const sh=document.getElementById('canvasShell');
+sh.addEventListener('pointerdown',ev=>{
+  if(ev.button===1||(ev.button===0&&ev.altKey)){
+    ev.preventDefault();panning=true;
+    panStart={x:ev.clientX,y:ev.clientY};
+    panScroll={x:sh.scrollLeft,y:sh.scrollTop};
+    sh.style.cursor='grabbing';
+  }
+});
+window.addEventListener('pointermove',ev=>{if(!panning)return;sh.scrollLeft=panScroll.x-(ev.clientX-panStart.x);sh.scrollTop=panScroll.y-(ev.clientY-panStart.y);});
+window.addEventListener('pointerup',()=>{if(panning){panning=false;sh.style.cursor='';}});
+sh.addEventListener('wheel',ev=>{if(ev.ctrlKey||ev.metaKey){ev.preventDefault();zoom(ev.deltaY>0?-.1:.1);}},{passive:false});
+
+// Keyboard
+document.addEventListener('keydown',ev=>{
+  const inIn=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);
+  if(selectedId&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(ev.key)&&!inIn){
+    ev.preventDefault();
+    let s=ev.ctrlKey||ev.metaKey?50:ev.shiftKey?10:1;
+    const dx=ev.key==='ArrowLeft'?-s:ev.key==='ArrowRight'?s:0;
+    const dy=ev.key==='ArrowUp'?-s:ev.key==='ArrowDown'?s:0;
+    pushH();
+    elements=elements.map(e=>{
+      if(e.id!==selectedId) return e;
+      if(e.type==='arrow'&&!e.from&&!e.to) return{...e,x1:e.x1+dx,y1:e.y1+dy,x2:e.x2+dx,y2:e.y2+dy};
+      if(e.type==='arrow') return e;
+      return{...e,x:(e.x||0)+dx,y:(e.y||0)+dy};
+    });
+    save();render();return;
+  }
+  if(inIn) return;
+  if(ev.key==='Escape'){selectedId=null;connectSrc=null;connectMode=false;hoveredId=null;portDragging=null;render();return;}
+  if((ev.key==='Delete'||ev.key==='Backspace')&&selectedId) deleteSelected();
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();undo();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='y'){ev.preventDefault();redo();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='c'){ev.preventDefault();copySelected();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='v'){ev.preventDefault();pasteCopied();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='d'){ev.preventDefault();dupSelected();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='s'){ev.preventDefault();exportJSON();}
+  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='e'){ev.preventDefault();exportPNG();}
+});
+
+// ── Add helpers ──────────────────────────────────────────────────────────────
+function add(it){const n={...it,id:uid()};commit([...elements,n]);selectedId=n.id;render();}
+function addBox(){add({type:'box',x:500,y:280,w:175,h:90,text:'Step',fontSize:15,bg:'#0f172a',stroke:'#38bdf8',bw:2,rx:10});}
+function addText(){add({type:'text',x:520,y:220,w:380,h:60,text:'New Text',fontSize:34,fill:'#f1f5f9',stroke:'transparent'});}
+function addCircle(){add({type:'circle',x:500,y:280,w:135,h:105,text:'Node',fontSize:15,bg:'#0f172a',stroke:'#38bdf8',bw:2});}
+function addDiamond(){add({type:'diamond',x:500,y:265,w:160,h:130,text:'Decision?',fontSize:14,bg:'#0f172a',stroke:'#f59e0b',bw:2});}
+function addNote(){add({type:'note',x:500,y:265,w:230,h:100,text:'Note',fontSize:15,bg:'#1e293b',stroke:'#facc15',bw:2,rx:8});}
+function addSwimlane(){add({type:'swimlane',x:100,y:160,w:1300,h:250,text:'Production Environment',bg:'rgba(6,15,30,.5)',stroke:'#334155',fill:'#64748b'});}
+function addArrow(){add(fArr(440,360,680,360));}
+function addTool(key){
+  const m=TOOLS[key]||{n:key,bg:'#0f172a',s:'#38bdf8',f:'#38bdf8',ic:'',ic2:'38bdf8'};
+  add({type:'tool',key,x:500,y:265,w:165,h:130,text:m.n,fs:13,fill:m.f,stroke:m.s,bg:m.bg,
+       logo:`https://cdn.simpleicons.org/${m.ic}/${m.ic2}`,rx:20});
+}
+
+// ── Templates ──────────────────────────────────────────────────────────────
+const conn=(a,b,c='#475569')=>({id:uid(),type:'arrow',from:a.id,to:b.id,x1:0,y1:0,x2:0,y2:0,stroke:c,lw:3});
+function tplK8s(){
+  const [ng]=tNode('nginx',80,265),[lb]=tNode('haproxy',300,265),[k8]=tNode('kubernetes',520,265),
+        [hm]=tNode('helm',740,265),[pg]=tNode('postgresql',960,265),[pr]=tNode('prometheus',520,445),
+        [gr]=tNode('grafana',740,445),[va]=tNode('vault',300,445);
+  commit([{id:uid(),type:'text',x:400,y:55,w:900,h:66,text:'Kubernetes Architecture',fontSize:40,fill:'#f1f5f9'},
+    ng,lb,k8,hm,pg,pr,gr,va,conn(ng,lb),conn(lb,k8),conn(k8,hm),conn(hm,pg),conn(k8,pr),conn(pr,gr),conn(lb,va)]);
+}
+function tplCicd(){
+  const [gh]=tNode('github',80,280),[ci]=tNode('github_actions',300,280),[tr]=tNode('trivy',520,180),
+        [dk]=tNode('docker',520,380),[hb]=tNode('harbor',740,280),[ar]=tNode('argocd',960,280),[k8]=tNode('kubernetes',1180,280);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'CI/CD Pipeline',fontSize:40,fill:'#f1f5f9'},
+    gh,ci,tr,dk,hb,ar,k8,conn(gh,ci),conn(ci,tr),conn(ci,dk),conn(tr,hb),conn(dk,hb),conn(hb,ar),conn(ar,k8)]);
+}
+function tplIncident(){
+  const al={id:uid(),type:'box',x:90,y:285,w:175,h:85,text:'Alert Fired',bg:'#1e293b',stroke:'#ef4444',bw:2,fontSize:14,rx:9};
+  const [pd]=tNode('pagerduty',335,270);
+  const dec={id:uid(),type:'diamond',x:560,y:265,w:160,h:125,text:'P1?',bg:'#1e293b',stroke:'#f59e0b',bw:2,fontSize:14};
+  const mt={id:uid(),type:'box',x:795,y:285,w:185,h:85,text:'Mitigate',bg:'#1e293b',stroke:'#22c55e',bw:2,fontSize:14,rx:9};
+  const pm={id:uid(),type:'box',x:1050,y:285,w:195,h:85,text:'Postmortem',bg:'#1e293b',stroke:'#a78bfa',bw:2,fontSize:14,rx:9};
+  const [gr]=tNode('grafana',335,440);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'Incident Response Flow',fontSize:40,fill:'#f1f5f9'},
+    al,pd,dec,mt,pm,gr,conn(al,pd),conn(pd,dec),conn(dec,mt),conn(mt,pm),conn(gr,pd)]);
+}
+function tplZeroTrust(){
+  const us={id:uid(),type:'box',x:80,y:285,w:170,h:85,text:'User',bg:'#0f172a',stroke:'#38bdf8',bw:2,fontSize:15,rx:9};
+  const [kc]=tNode('keycloak',315,270),[va]=tNode('vault',545,270),[cs]=tNode('consul',775,270);
+  const ap={id:uid(),type:'box',x:1010,y:285,w:195,h:85,text:'Private App',bg:'#0f172a',stroke:'#22c55e',bw:2,fontSize:14,rx:9};
+  const [ci]=tNode('cilium',545,440);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'Zero Trust Architecture',fontSize:40,fill:'#f1f5f9'},
+    us,kc,va,cs,ap,ci,conn(us,kc),conn(kc,va),conn(va,cs),conn(cs,ap),conn(ci,cs)]);
+}
+function tplObservability(){
+  const sv={id:uid(),type:'box',x:90,y:325,w:180,h:85,text:'Services',bg:'#0f172a',stroke:'#60a5fa',bw:2,fontSize:15,rx:9};
+  const [ot]=tNode('otel',345,270),[pr]=tNode('prometheus',600,185),[lk]=tNode('loki',600,370),
+        [jg]=tNode('jaeger',845,185),[gr]=tNode('grafana',845,370),[pd]=tNode('pagerduty',1090,275);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'SRE Observability Stack',fontSize:40,fill:'#f1f5f9'},
+    sv,ot,pr,lk,jg,gr,pd,conn(sv,ot),conn(ot,pr),conn(ot,lk),conn(ot,jg),conn(pr,gr),conn(lk,gr),conn(jg,gr),conn(gr,pd)]);
+}
+function tplGitOps(){
+  const dv={id:uid(),type:'box',x:80,y:320,w:175,h:85,text:'Developer',bg:'#0f172a',stroke:'#60a5fa',bw:2,fontSize:14,rx:9};
+  const [gh]=tNode('github',325,305),[ci]=tNode('github_actions',555,305),[ar]=tNode('argocd',785,305),
+        [k8]=tNode('kubernetes',1015,305),[fx]=tNode('flux',785,470);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'GitOps Workflow',fontSize:40,fill:'#f1f5f9'},
+    dv,gh,ci,ar,k8,fx,conn(dv,gh),conn(gh,ci),conn(ci,ar),conn(ar,k8),conn(fx,k8)]);
+}
+function tplMicroservices(){
+  const [gw]=tNode('kong',90,295);
+  const sa={id:uid(),type:'box',x:340,y:205,w:160,h:80,text:'Auth Service',bg:'#0f172a',stroke:'#818cf8',bw:2,fontSize:13,rx:9};
+  const sb={id:uid(),type:'box',x:340,y:325,w:160,h:80,text:'User Service',bg:'#0f172a',stroke:'#34d399',bw:2,fontSize:13,rx:9};
+  const sc={id:uid(),type:'box',x:340,y:445,w:160,h:80,text:'Order Service',bg:'#0f172a',stroke:'#fb923c',bw:2,fontSize:13,rx:9};
+  const [kf]=tNode('kafka',590,325),[rd]=tNode('redis',840,205),[pg]=tNode('postgresql',840,445),[pr]=tNode('prometheus',1090,325);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'Microservices Architecture',fontSize:40,fill:'#f1f5f9'},
+    gw,sa,sb,sc,kf,rd,pg,pr,conn(gw,sa),conn(gw,sb),conn(gw,sc),conn(sa,kf),conn(sb,kf),conn(sc,kf),conn(kf,rd),conn(kf,pg),conn(rd,pr),conn(pg,pr)]);
+}
+function tplDataPipeline(){
+  const [kf]=tNode('kafka',80,305);
+  const sp={id:uid(),type:'box',x:315,y:315,w:170,h:80,text:'Stream Processor',bg:'#0f172a',stroke:'#60a5fa',bw:2,fontSize:13,rx:9};
+  const [ch]=tNode('clickhouse',555,305),[gr]=tNode('grafana',785,305),[mn]=tNode('minio',555,470),[el]=tNode('elastic',785,470);
+  commit([{id:uid(),type:'text',x:380,y:55,w:980,h:66,text:'Data Pipeline',fontSize:40,fill:'#f1f5f9'},
+    kf,sp,ch,gr,mn,el,conn(kf,sp),conn(sp,ch),conn(ch,gr),conn(sp,mn),conn(mn,el)]);
+}
+function tplSecOps(){
+  const [gh]=tNode('github',80,305),[ci]=tNode('github_actions',300,305),[tr]=tNode('trivy',520,205),
+        [sn]=tNode('snyk',520,405),[sq]=tNode('sonarqube',740,305),[hb]=tNode('harbor',960,305),[k8]=tNode('kubernetes',1180,305);
+  commit([{id:uid(),type:'text',x:320,y:55,w:1100,h:66,text:'DevSecOps Pipeline',fontSize:40,fill:'#f1f5f9'},
+    gh,ci,tr,sn,sq,hb,k8,conn(gh,ci),conn(ci,tr),conn(ci,sn),conn(tr,sq),conn(sn,sq),conn(sq,hb),conn(hb,k8)]);
+}
+
+// ── Inspector ──────────────────────────────────────────────────────────────
 function renderInspector(){
-  const p=document.getElementById("inspector");
+  const p=document.getElementById('inspector');
   const e=elements.find(x=>x.id===selectedId);
-  if(!e){ p.innerHTML='<div class="hint">Select an element to edit position, size, label, colors, and icon type.</div>'; return; }
-  const normal=e.type!=="arrow";
+  if(!e){p.innerHTML='<div class="hint">Select an element to edit.<br><br><b>Hover any shape edge</b> to reveal port dots, then drag from a port to create a connection from any point.</div>';return;}
+  const isTool=e.type==='tool',isArr=e.type==='arrow';
   p.innerHTML=`
-    <div class="card"><div class="small">Selected</div><b>${e.type}</b></div>
-    ${normal?`<div class="field"><label>Label</label><textarea id="iText">${esc(e.text||"")}</textarea></div>`:""}
-    ${e.type==="icon"?`
-      <div class="field"><label>Icon type</label><select id="iIconType">
-        ${["server","cloud","database","shield","network","git","monitor","queue","k8s","firewall","user","linux","lxc","docker","nginx","prometheus","grafana","terraform","loadbalancer"].map(t=>`<option value="${t}" ${t===(e.iconType||"server")?"selected":""}>${t}</option>`).join("")}
-      </select></div>
-    `:""}
-    ${normal?`
-      <div class="two"><div class="field"><label>X</label><input id="iX" type="number" value="${e.x||0}"></div><div class="field"><label>Y</label><input id="iY" type="number" value="${e.y||0}"></div></div>
-      <div class="two"><div class="field"><label>Width</label><input id="iW" type="number" value="${e.w||0}"></div><div class="field"><label>Height</label><input id="iH" type="number" value="${e.h||0}"></div></div>
-    `:`
-      <div class="warn">Connected arrows follow their objects automatically. Free arrows can be edited by coordinates.</div>
-      <div class="two"><div class="field"><label>X1</label><input id="ix1" type="number" value="${e.x1||0}"></div><div class="field"><label>Y1</label><input id="iy1" type="number" value="${e.y1||0}"></div></div>
-      <div class="two"><div class="field"><label>X2</label><input id="ix2" type="number" value="${e.x2||0}"></div><div class="field"><label>Y2</label><input id="iy2" type="number" value="${e.y2||0}"></div></div>
-    `}
-    <div class="two">
-      ${normal?`<div class="field"><label>Background</label><input id="iBg" type="color" value="${col(e.bg||e.fill)}"></div>`:""}
-      <div class="field"><label>Stroke / Icon</label><input id="iStroke" type="color" value="${col(e.stroke)}"></div>
+    <div class="card">
+      <div class="small">Type: <b>${e.type}${isTool?' &mdash; '+e.key:''}</b></div>
+      <div class="small" style="color:#22d3ee;margin-top:2px">Arrow keys: nudge &bull; Shift&#215;10 &bull; Ctrl&#215;50</div>
     </div>
-    ${normal?`<div class="two"><div class="field"><label>Font size</label><input id="iFont" type="number" value="${e.fontSize||18}"></div><div class="field"><label>Radius</label><input id="iRadius" type="number" value="${e.radius||18}"></div></div>`:""}
+    ${!isArr?`<div class="fld"><label>Label</label><textarea id="iT">${escHtml(e.text||'')}</textarea></div>`:''}
+    ${isTool?`<div class="fld"><label>Tool (changes logo)</label><select id="iTK">${Object.entries(TOOLS).map(([k,v])=>`<option value="${k}"${k===e.key?' selected':''}>${v.n}</option>`).join('')}</select></div>`:''}
+    ${!isArr?`<div class="two"><div class="fld"><label>X</label><input id="iX" type="number" value="${e.x||0}"></div><div class="fld"><label>Y</label><input id="iY" type="number" value="${e.y||0}"></div></div>
+    <div class="two"><div class="fld"><label>W</label><input id="iW" type="number" value="${e.w||0}"></div><div class="fld"><label>H</label><input id="iH" type="number" value="${e.h||0}"></div></div>`
+    :`<div class="warn" style="font-size:9.5px">Connected arrows follow nodes. Drag from edge ports to create new connections.</div>
+    <div class="two"><div class="fld"><label>X1</label><input id="ix1" type="number" value="${e.x1||0}"></div><div class="fld"><label>Y1</label><input id="iy1" type="number" value="${e.y1||0}"></div></div>
+    <div class="two"><div class="fld"><label>X2</label><input id="ix2" type="number" value="${e.x2||0}"></div><div class="fld"><label>Y2</label><input id="iy2" type="number" value="${e.y2||0}"></div></div>`}
+    <div class="two">
+      ${!isArr&&e.type!=='text'?`<div class="fld"><label>Background</label><input id="iBg" type="color" value="${col(e.bg||e.fill)}"></div>`:''}
+      <div class="fld"><label>${isArr?'Arrow Color':'Stroke'}</label><input id="iSt" type="color" value="${col(e.stroke||e.fill)}"></div>
+    </div>
+    ${!isArr?`<div class="two"><div class="fld"><label>Font size</label><input id="iFs" type="number" value="${e.fontSize||e.fs||14}"></div><div class="fld"><label>Radius</label><input id="iRx" type="number" value="${e.rx||e.radius||10}"></div></div>`:''}
+    ${isArr?`<div class="fld"><label>Line width</label><input id="iAw" type="number" value="${e.lw||3}" min="1" max="12"></div>`:''}
+    ${!isArr&&e.type!=='text'?`<div class="fld"><label>Border width</label><input id="iBw" type="number" value="${e.bw||2}" min="1" max="8"></div>`:''}
   `;
-  bind(e.id);
+  bindInsp(e.id);
 }
-function bind(id){
-  const map={iText:v=>({text:v}),iX:v=>({x:+v}),iY:v=>({y:+v}),iW:v=>({w:+v}),iH:v=>({h:+v}),iBg:v=>({bg:v}),iStroke:v=>({stroke:v,fill:v}),iFont:v=>({fontSize:+v}),iRadius:v=>({radius:+v}),iIconType:v=>({iconType:v}),ix1:v=>({x1:+v,from:null}),iy1:v=>({y1:+v,from:null}),ix2:v=>({x2:+v,to:null}),iy2:v=>({y2:+v,to:null})};
-  Object.entries(map).forEach(([idn,fn])=>{ const input=document.getElementById(idn); if(input) input.addEventListener("input",ev=>{elements=elements.map(e=>e.id===id?{...e,...fn(ev.target.value)}:e);save();render();}); });
-}
-function esc(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
-function col(v){ return (!v||v==="transparent"||String(v).startsWith("rgba"))?"#ffffff":v; }
 
-function copySelected(){ const e=elements.find(x=>x.id===selectedId); if(!e)return; clipboardItem=clone(e); }
+function bindInsp(id){
+  const mp={
+    iT:v=>({text:v}),iX:v=>({x:+v}),iY:v=>({y:+v}),iW:v=>({w:+v}),iH:v=>({h:+v}),
+    iBg:v=>({bg:v}),iSt:v=>({stroke:v,fill:v}),iFs:v=>({fontSize:+v,fs:+v}),iRx:v=>({rx:+v,radius:+v}),
+    iBw:v=>({bw:+v}),iAw:v=>({lw:+v}),
+    ix1:v=>({x1:+v,from:null}),iy1:v=>({y1:+v,from:null}),ix2:v=>({x2:+v,to:null}),iy2:v=>({y2:+v,to:null}),
+    iTK:v=>{const m=TOOLS[v]||{};return{key:v,logo:`https://cdn.simpleicons.org/${m.ic}/${m.ic2}`,stroke:m.s,fill:m.f,bg:m.bg,text:m.n};}
+  };
+  Object.entries(mp).forEach(([k,fn])=>{
+    const el=document.getElementById(k);
+    if(el) el.addEventListener('input',ev=>{elements=elements.map(e=>e.id===id?{...e,...fn(ev.target.value)}:e);save();render();});
+  });
+}
+
+const escHtml=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const col=v=>(!v||v==='transparent'||String(v).startsWith('rgba')||String(v).startsWith('rgb'))?'#0f172a':v;
+
+// ── Ops ──────────────────────────────────────────────────────────────────────
+function copySelected(){const e=elements.find(x=>x.id===selectedId);if(!e)return;clipboard=cl(e);}
 function pasteCopied(){
-  if(!clipboardItem)return;
-  const c=clone(clipboardItem); c.id=uid(); c.from=null; c.to=null;
-  if(c.type==="arrow"){c.x1=(c.x1||0)+35;c.y1=(c.y1||0)+35;c.x2=(c.x2||0)+35;c.y2=(c.y2||0)+35}else{c.x=(c.x||0)+35;c.y=(c.y||0)+35}
-  commit([...elements,c]); selectedId=c.id; render();
+  if(!clipboard)return;
+  const c=cl(clipboard);c.id=uid();c.from=null;c.to=null;
+  if(c.type==='arrow'){c.x1=(c.x1||0)+40;c.y1=(c.y1||0)+40;c.x2=(c.x2||0)+40;c.y2=(c.y2||0)+40;}
+  else{c.x=(c.x||0)+40;c.y=(c.y||0)+40;}
+  commit([...elements,c]);selectedId=c.id;render();
 }
-function duplicateSelected(){ copySelected(); pasteCopied(); }
-function deleteSelected(){ if(!selectedId)return; commit(elements.filter(e=>e.id!==selectedId && e.from!==selectedId && e.to!==selectedId)); selectedId=null; render(); }
-function bringForward(){ const i=elements.findIndex(e=>e.id===selectedId); if(i<0||i===elements.length-1)return; const a=[...elements]; [a[i],a[i+1]]=[a[i+1],a[i]]; commit(a); }
-function sendBackward(){ const i=elements.findIndex(e=>e.id===selectedId); if(i<=0)return; const a=[...elements]; [a[i],a[i-1]]=[a[i-1],a[i]]; commit(a); }
-function clearCanvas(){ if(confirm("Clear canvas?")){commit([]);selectedId=null;} }
-function undo(){ if(!history.length)return; future.unshift(clone(elements)); elements=history.pop(); save(); render(); }
-function redo(){ if(!future.length)return; history.push(clone(elements)); elements=future.shift(); save(); render(); }
-function toggleGrid(){ showGrid=!showGrid; document.getElementById("gridBtn").classList.toggle("primary",showGrid); render(); }
-function zoom(delta){ scale=Math.max(.45,Math.min(1.8,+(scale+delta).toFixed(2))); stage.style.width=1440*scale+"px"; stage.style.height=820*scale+"px"; document.getElementById("zoomLabel").textContent=Math.round(scale*100)+"%"; }
-function fitDefault(){ scale=1; stage.style.width="1440px"; stage.style.height="820px"; document.getElementById("zoomLabel").textContent="100%"; }
-function toggleConnectMode(){ connectMode=!connectMode; connectSourceId=null; updateConnectUI(); render(); }
-function updateConnectUI(){
-  const b=document.getElementById("connectBtn"), h=document.getElementById("connectHelp");
+function dupSelected(){copySelected();pasteCopied();}
+function deleteSelected(){if(!selectedId)return;commit(elements.filter(e=>e.id!==selectedId&&e.from!==selectedId&&e.to!==selectedId));selectedId=null;render();}
+function bringForward(){const i=elements.findIndex(e=>e.id===selectedId);if(i<0||i===elements.length-1)return;const a=[...elements];[a[i],a[i+1]]=[a[i+1],a[i]];commit(a);}
+function sendBackward(){const i=elements.findIndex(e=>e.id===selectedId);if(i<=0)return;const a=[...elements];[a[i],a[i-1]]=[a[i-1],a[i]];commit(a);}
+function clearCanvas(){if(confirm('Clear the canvas? Cannot be undone.')){commit([]);selectedId=null;}}
+function undo(){if(!history.length)return;future.unshift(cl(elements));elements=history.pop();save();render();}
+function redo(){if(!future.length)return;history.push(cl(elements));elements=future.shift();save();render();}
+function toggleGrid(){showGrid=!showGrid;document.getElementById('gridBtn').classList.toggle('primary',showGrid);render();}
+function zoom(d){scale=Math.max(.2,Math.min(3,+(scale+d).toFixed(2)));stage.style.width=1700*scale+'px';stage.style.height=960*scale+'px';document.getElementById('zoomLbl').textContent=Math.round(scale*100)+'%';}
+function fitDefault(){scale=1;stage.style.width='1700px';stage.style.height='960px';document.getElementById('zoomLbl').textContent='100%';}
+function toggleConnectMode(){connectMode=!connectMode;connectSrc=null;updateConnUI();render();}
+function updateConnUI(){
+  const b=document.getElementById('connectBtn'),h=document.getElementById('connectHelp');
   if(!b||!h)return;
-  b.classList.toggle("active",connectMode);
-  b.textContent = connectMode ? "Connector: ON" : "Connector: OFF";
-  h.innerHTML = connectMode ? (connectSourceId ? "First shape selected. Now click the second shape to connect them." : "Click the first shape, then click the second shape. The connector will attach to the edges.") : "Turn Connector ON and click two shapes, or drag from the small connector dot on a selected shape to another shape. Use the resize handle to make boxes bigger or smaller with the mouse.";
+  b.classList.toggle('active',connectMode);
+  b.textContent=connectMode?'&#9889; Connector: ON':'&#9889; Connector: OFF';
+  h.innerHTML=connectMode
+    ?(connectSrc?'First shape selected. Now click target shape.':'Click source, then target. Or switch OFF and drag from any edge port (cyan dots).')
+    :'<b>Hover any shape edge</b> to see cyan port dots, then <b>drag from a port</b> to draw a connection to any other shape.';
 }
 
-function svgMarkup(){ const c=stage.cloneNode(true); c.setAttribute("xmlns",SVG); return new XMLSerializer().serializeToString(c); }
-function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
-function exportSVG(){ download(new Blob([svgMarkup()],{type:"image/svg+xml"}),"hypernexa-diagram.svg"); }
-function exportJSON(){ download(new Blob([JSON.stringify(elements,null,2)],{type:"application/json"}),"hypernexa-diagram-project.json"); }
+// ── Export ──────────────────────────────────────────────────────────────────
+const svgMark=()=>{const c=stage.cloneNode(true);c.setAttribute('xmlns',NS);return new XMLSerializer().serializeToString(c);};
+const dl=(b,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();URL.revokeObjectURL(a.href);};
+function exportSVG(){dl(new Blob([svgMark()],{type:'image/svg+xml'}),'diagram.svg');}
+function exportJSON(){dl(new Blob([JSON.stringify(elements,null,2)],{type:'application/json'}),'diagram.json');}
 function exportPNG(){
-  const img=new Image(), url=URL.createObjectURL(new Blob([svgMarkup()],{type:"image/svg+xml;charset=utf-8"}));
-  img.onload=()=>{ const c=document.createElement("canvas"); c.width=1440; c.height=820; c.getContext("2d").drawImage(img,0,0); URL.revokeObjectURL(url); c.toBlob(b=>download(b,"hypernexa-diagram.png")); };
+  const img=new Image(),url=URL.createObjectURL(new Blob([svgMark()],{type:'image/svg+xml;charset=utf-8'}));
+  img.onload=()=>{
+    const c=document.createElement('canvas');c.width=1700;c.height=960;
+    const ctx=c.getContext('2d');ctx.fillStyle='#020617';ctx.fillRect(0,0,1700,960);
+    ctx.drawImage(img,0,0);URL.revokeObjectURL(url);c.toBlob(b=>dl(b,'diagram.png'),'image/png');
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);alert('PNG: some logos may fail due to CORS. Try SVG export.');};
   img.src=url;
 }
-imageInput.addEventListener("change",ev=>{ const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>add({type:"image",x:420,y:220,w:320,h:220,src:r.result}); r.readAsDataURL(f); ev.target.value=""; });
-jsonInput.addEventListener("change",async ev=>{ const f=ev.target.files[0]; if(!f)return; try{ const data=JSON.parse(await f.text()); if(Array.isArray(data)) commit(data); else alert("Invalid project file"); }catch{alert("Invalid JSON file")} ev.target.value=""; });
+imageInput.addEventListener('change',ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>add({type:'image',x:450,y:220,w:300,h:200,src:r.result});r.readAsDataURL(f);ev.target.value='';});
+jsonInput.addEventListener('change',async ev=>{const f=ev.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(Array.isArray(d))commit(d);else alert('Invalid project file.');}catch{alert('Invalid JSON.');}ev.target.value='';});
 
-document.addEventListener("keydown",ev=>{
-  const focused = ["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName);
-  if((ev.key==="Delete"||ev.key==="Backspace") && selectedId && !focused) deleteSelected();
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="c" && !focused){ ev.preventDefault(); copySelected(); }
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="v" && !focused){ ev.preventDefault(); pasteCopied(); }
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="s"){ ev.preventDefault(); exportJSON(); }
-  if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="e"){ ev.preventDefault(); exportPNG(); }
-});
 load();
 </script>
 </body>
