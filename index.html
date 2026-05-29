@@ -444,7 +444,7 @@ const T = {
   puppet:       {n:'Puppet',         g:'iac',  s:'puppet',           c:'FFAE1A'},
   crossplane:   {n:'Crossplane',     g:'iac',  s:'crossplane',       c:'EF3641'},
   // Cloud
-  aws:          {n:'AWS',           g:'cloud',s:'amazonaws',         c:'FF9900'},
+  aws:          {n:'AWS',           g:'cloud',s:'amazonaws',         c:'FF9900', logo:'https://www.vectorlogo.zone/logos/amazon_aws/amazon_aws-icon.svg'},
   azure:        {n:'Azure',         g:'cloud',s:'microsoftazure',    c:'0078D4'},
   gcp:          {n:'Google Cloud',  g:'cloud',s:'googlecloud',       c:'4285F4'},
   digitalocean: {n:'DigitalOcean',  g:'cloud',s:'digitalocean',      c:'0080FF'},
@@ -467,7 +467,7 @@ const T = {
   sentry:       {n:'Sentry',        g:'obs',  s:'sentry',            c:'362D59'},
   // Networking
   nginx:        {n:'Nginx',         g:'net',  s:'nginx',             c:'009639'},
-  haproxy:      {n:'HAProxy',       g:'net',  s:'haproxy',           c:'199EC0'},
+  haproxy:      {n:'HAProxy',       g:'net',  s:'haproxy',           c:'199EC0', logo:'https://www.vectorlogo.zone/logos/haproxy/haproxy-icon.svg'},
   traefik:      {n:'Traefik',       g:'net',  s:'traefikproxy',      c:'24A1C1'},
   envoy:        {n:'Envoy Proxy',   g:'net',  s:'envoyproxy',        c:'AC6199'},
   istio:        {n:'Istio',         g:'net',  s:'istio',             c:'466BB0'},
@@ -536,7 +536,7 @@ const T = {
   // Security
   trivy:        {n:'Trivy',         g:'sec',  s:'trivy',            c:'1904DA'},
   snyk:         {n:'Snyk',          g:'sec',  s:'snyk',             c:'4C5454'},
-  sonarqube:    {n:'SonarQube',     g:'sec',  s:'sonarqube',        c:'4E9BCD'},
+  sonarqube:    {n:'SonarQube',     g:'sec',  s:'sonarqube',        c:'4E9BCD', logo:'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sonarqube/sonarqube-original.svg'},
   keycloak:     {n:'Keycloak',      g:'sec',  s:'keycloak',         c:'4D4D4D'},
   // Registries
   harbor:       {n:'Harbor',        g:'reg',  s:'harbor',           c:'60B932'},
@@ -559,7 +559,7 @@ const GRP = {
 // Build tool panel
 function h2r(hex){const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);return isNaN(r)?'60,100,180':`${r},${g},${b}`;}
 function darkBg(c){const r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16);if(isNaN(r))return'#0d1526';return`rgb(${Math.max(0,Math.floor(r*.06))},${Math.max(0,Math.floor(g*.06))},${Math.max(6,Math.floor(b*.12))})`;}
-function logoUrl(t){return t?`https://cdn.simpleicons.org/${t.s}/${t.c}`:'';}
+function logoUrl(t){if(!t)return '';if(t.logo)return t.logo;return `https://cdn.simpleicons.org/${t.s}/${t.c}`;}
 
 (function buildToolPanel(){
   const el=document.getElementById('toolSections');
@@ -813,6 +813,41 @@ function render(){
   renderInspector();
   updateConnUI();
   updateMinimap();
+  // Fix broken SVG images with letter fallbacks
+  setTimeout(fixBrokenLogos, 50);
+}
+
+function fixBrokenLogos(){
+  mainLayer.querySelectorAll('image').forEach(img=>{
+    if(img._fbDone) return;
+    img._fbDone=true;
+    img.addEventListener('error',()=>{
+      try{
+        const it=elements.find(e=>e.id===img.closest('[data-id]')?.getAttribute('data-id'));
+        if(!it||!it.key) return;
+        const m=T[it.key];if(!m) return;
+        const clr='#'+m.c;
+        const letter=m.n[0].toUpperCase();
+        const lx=+img.getAttribute('x'),ly=+img.getAttribute('y');
+        const ls=+img.getAttribute('width');
+        // Draw fallback circle + letter
+        const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        bg.setAttribute('x',lx);bg.setAttribute('y',ly);
+        bg.setAttribute('width',ls);bg.setAttribute('height',ls);
+        bg.setAttribute('rx','8');bg.setAttribute('fill',clr+'22');
+        bg.setAttribute('stroke',clr);bg.setAttribute('stroke-width','1.5');
+        const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x',lx+ls/2);txt.setAttribute('y',ly+ls/2);
+        txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+        txt.setAttribute('fill',clr);txt.setAttribute('font-size',ls*.45);
+        txt.setAttribute('font-weight','900');txt.setAttribute('font-family','Inter,sans-serif');
+        txt.textContent=letter;
+        img.parentNode.insertBefore(bg,img);
+        img.parentNode.insertBefore(txt,img);
+        img.style.display='none';
+      }catch(e){}
+    },{once:true});
+  });
 }
 
 function drawPorts(it){
